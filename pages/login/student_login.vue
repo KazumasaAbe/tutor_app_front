@@ -3,10 +3,15 @@
     <v-col cols="12" sm="8" md="6">
       <v-card>
         <v-card-title class="headline">
-          Top_page
+          生徒ログイン
         </v-card-title>
         <v-card-actions>
           <v-spacer />
+          <v-btn
+            to="/login/teacher_login"
+          >
+            先生側
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-col>
