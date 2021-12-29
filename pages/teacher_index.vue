@@ -3,7 +3,7 @@
     <h1>先生一覧</h1>
     <v-dialog
       v-model="dialog"
-      width="500"
+      width="450"
     >
       <template #activator="{ on, attrs }">
         <v-card
@@ -23,18 +23,10 @@
       </template>
 
       <v-card>
-        <v-row
-          align="end"
-          class="fill-height"
-        >
-          <v-col
-            align-self="start"
-            class="pa-0"
-            cols="12"
-          >
+        <v-row>
+          <v-col>
             <v-avatar
               class="profile"
-              color="grey"
               size="164"
               tile
             >
@@ -43,35 +35,60 @@
               />
             </v-avatar>
           </v-col>
-          <v-col class="py-0">
-            <v-list-item
-              color="rgba(0, 0, 0, .4)"
-              dark
-            >
+          <v-col
+            class="mt-4"
+          >
+            <v-list-item>
               <v-list-item-content>
+                <v-list-item-subtitle>名前</v-list-item-subtitle>
                 <v-list-item-title
-                  class="text-h6"
+                  class="text-h6 pt-1 pl-4"
                 >
-                  ◯◯先生
+                  槇 貴弘
                 </v-list-item-title>
-                <v-list-item-subtitle>国語</v-list-item-subtitle>
+                <v-divider />
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-subtitle>担当教科</v-list-item-subtitle>
+                <v-list-item-title
+                  class="text-h6 pt-1 pl-4"
+                >
+                  国語
+                </v-list-item-title>
+                <v-divider />
               </v-list-item-content>
             </v-list-item>
           </v-col>
+          <v-col>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                outlined
+                small
+                @click="dialog = false"
+              >
+                ✖️
+              </v-btn>
+            </v-card-actions>
+          </v-col>
         </v-row>
-
-        <v-divider />
-
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            color="primary"
-            text
-            @click="dialog = false"
+        <v-col>
+          <v-list-item-subtitle
+            class="pb-2 pl-2"
           >
-            閉じる
-          </v-btn>
-        </v-card-actions>
+            自己紹介
+          </v-list-item-subtitle>
+          <v-card
+            outlined
+            class="pa-3"
+          >
+            初めまして！槇貴弘といいます。<br>
+            生徒に合わせ教え方を変えて勉強が楽しい！と<br>
+            思ってもらえるように笑顔を絶やさず丁寧に教えます！
+          </v-card>
+        </v-col>
       </v-card>
     </v-dialog>
   </v-app>
@@ -82,7 +99,7 @@ export default {
   data () {
     return {
       dialog: false,
-      image_src: require('@/assets/images/default_teacher_icon.png')
+      image_src: require('@/assets/images/default_icon.png')
     }
   }
 }
