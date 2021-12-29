@@ -1,13 +1,13 @@
 <template>
   <v-app>
-    <h1>先生一覧</h1>
+    <h2>先生一覧</h2>
     <v-dialog
       v-model="dialog"
-      width="450"
+      width="470"
     >
       <template #activator="{ on, attrs }">
         <v-card
-          class="mx-auto"
+          class="mt-5"
           max-width="250"
           v-bind="attrs"
           v-on="on"
