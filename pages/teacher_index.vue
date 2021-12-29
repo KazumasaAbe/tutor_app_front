@@ -1,6 +1,8 @@
 <template>
   <v-app>
-    <h2>先生一覧</h2>
+    <h2 class="mt-2">
+      先生一覧
+    </h2>
     <v-dialog
       v-model="dialog"
       width="470"
