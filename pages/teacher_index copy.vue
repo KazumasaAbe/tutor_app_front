@@ -1,32 +1,8 @@
-
 <template>
   <v-app>
     <h2 class="mt-2">
       先生一覧
     </h2>
-    <!-- test -->
-    <table v-if="teachers.length">
-      <thead>
-        <tr>
-          <th>id</th>
-          <th>name</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="(teacher, i) in teachers"
-          :key="`teacher-${i}`"
-        >
-          <td>{{ teacher.id }}</td>
-          <td>{{ teacher.name }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div v-else>
-      ユーザーが取得できませんでした
-    </div>
-    <!-- test -->
     <v-dialog
       v-model="dialog"
       width="470"
@@ -122,26 +98,10 @@
 
 <script>
 export default {
-  async asyncData ({ $axios }) {
-    let teachers = []
-    await $axios.$get('/api/v1/teachers')
-      .then(res => (teachers = res))
-    return { teachers }
-  },
   data () {
     return {
       dialog: false,
       image_src: require('@/assets/images/default_icon.png')
-    }
-  },
-  computed: {
-    dateFormat () {
-      return (date) => {
-        const dateTimeFormat = new Intl.DateTimeFormat(
-          'ja', { dateStyle: 'medium', timeStyle: 'short' }
-        )
-        return dateTimeFormat.format(new Date(date))
-      }
     }
   }
 }

@@ -14,6 +14,15 @@ module.exports = {
   ],
   plugins: [
   ],
+  // // index.vueが複数あっても問題ないようにする設定
+  // overrides: [
+  //   {
+  //     files: ['pages/index.vue'],
+  //     rules: {
+  //       'vue/multi-word-component-names': 0
+  //     }
+  //   }
+  // ],
   // add your custom rules here
   rules: {}
 }
