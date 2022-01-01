@@ -10,6 +10,7 @@
 import LoginForm from '~/components/LoginForm.vue'
 
 export default {
+  auth: false,
   components: {
     LoginForm
   },

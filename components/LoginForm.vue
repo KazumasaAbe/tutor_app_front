@@ -7,6 +7,7 @@
             <v-card-title>
               {{ title }}
             </v-card-title>
+            <Notification v-if="errors" :messages="errors" />
             <v-card-text>
               <v-form>
                 <v-text-field
@@ -27,17 +28,16 @@
                 <v-btn
                   block
                   color="info"
+                  @click="loginWithAuthModule"
                 >
                   ログイン
                 </v-btn>
               </v-card-actions>
-              <v-layout justify-right>
-                <v-card-actions>
-                  <router-link to="{{ link }}">
-                    {{ linkTitle }}
-                  </router-link>
-                </v-card-actions>
-              </v-layout>
+              <v-card-actions>
+                <router-link :to="link">
+                  {{ linkTitle }}
+                </router-link>
+              </v-card-actions>
             </v-card-text>
           </v-card>
         </v-col>
@@ -65,9 +65,54 @@ export default {
 
   data () {
     return {
+      auth: false,
       email: '',
       password: '',
-      showPassword: false
+      showPassword: false,
+      user: {},
+      errors: null
+    }
+  },
+  methods: {
+    async loginWithAuthModule () {
+      await this.$auth
+        .loginWith('local', {
+          // emailとpasswordの情報を送信
+          data: {
+            email: this.email,
+            password: this.password
+          }
+        })
+        .then(
+          (response) => {
+          // 認証に必要な情報をlocalStorageに保存
+            console.log(response.headers)
+            localStorage.setItem('access-token', response.headers['access-token'])
+            localStorage.setItem('client', response.headers.client)
+            localStorage.setItem('uid', response.headers.uid)
+            localStorage.setItem('token-type', response.headers['token-type'])
+            this.$router.push('/')
+            this.$store.dispatch(
+              'flashMessage/showMessage',
+              {
+                message: 'ログインしました.',
+                type: 'success',
+                status: true
+              },
+              { root: true }
+            )
+            this.user = response.data.data
+            this.$store.dispatch('user_information/setUser', this.user)
+            return response
+          }
+        )
+        .catch((e) => {
+          console.log(1)
+          this.errors = e.response.data.errors
+        })
+    },
+    authenticate () {
+      this.$auth.loginWith('app')
     }
   }
 }

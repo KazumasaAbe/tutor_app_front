@@ -36,9 +36,20 @@
         @click="$router.push('/')"
         v-text="title"
       />
+      <v-spacer />
+      <span v-if="$auth.loggedIn">
+        <v-btn
+          color="error"
+          dark
+          @click="logout"
+        >
+          ログアウト
+        </v-btn>
+      </span>
     </v-app-bar>
     <v-main>
       <v-container>
+        <FlashMessage />
         <Nuxt />
       </v-container>
     </v-main>
@@ -80,6 +91,34 @@ export default {
       right: true,
       rightDrawer: false,
       title: 'Tutor_Management_App'
+    }
+  },
+  methods: {
+    logout () {
+      this.$axios.delete('/api/v1/student/sign_out', {
+        headers: {
+          uid: localStorage.getItem('uid'),
+          'access-token': localStorage.getItem('access-token'),
+          client: localStorage.getItem('client')
+        }
+      })
+        .then((res) => {
+          this.$auth.logout()
+          localStorage.removeItem('uid')
+          localStorage.removeItem('access-token')
+          localStorage.removeItem('client')
+          this.$router.push('/')
+          this.$store.dispatch(
+            'flashMessage/showMessage',
+            {
+              message: 'ログアウトしました',
+              type: 'success',
+              status: true
+            },
+            { root: true }
+          )
+          this.$store.commit('user_information/logout')
+        })
     }
   }
 }
