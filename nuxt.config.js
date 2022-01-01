@@ -28,6 +28,7 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    'plugins/axios'
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -90,7 +91,7 @@ export default {
     strategies: {
       local: {
         endpoints: {
-          login: { url: '/api/v1/student/sign_in', method: 'post', propertyName: 'token' },
+          login: { url: '/api/v1/auth/sign_in', method: 'post', propertyName: 'token' },
           logout: false,
           callback: false,
           user: false
