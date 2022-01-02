@@ -11,12 +11,12 @@
             <v-card-text>
               <v-form>
                 <v-text-field
-                  v-model="email"
+                  v-model="login_info.email"
                   prepend-icon="mdi-account-circle"
                   label="メールアドレス"
                 />
                 <v-text-field
-                  v-model="password"
+                  v-model="login_info.password"
                   :type="showPassword ? 'text' : 'password'"
                   :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                   prepend-icon="mdi-lock"
@@ -28,7 +28,7 @@
                 <v-btn
                   block
                   color="info"
-                  @click="loginWithAuthModule"
+                  @click="login()"
                 >
                   ログイン
                 </v-btn>
@@ -60,33 +60,30 @@ export default {
     link: {
       type: String,
       required: true
+    },
+    loginUrl: {
+      type: String,
+      required: true
     }
   },
 
   data () {
     return {
       auth: false,
-      email: '',
-      password: '',
       showPassword: false,
       user: {},
-      errors: null
+      errors: null,
+      login_info: {
+        email: '',
+        password: ''
+      }
     }
   },
   methods: {
-    async loginWithAuthModule () {
-      await this.$auth
-        .loginWith('local', {
-          // emailとpasswordの情報を送信
-          data: {
-            email: this.email,
-            password: this.password
-          }
-        })
+    async login () {
+      await this.$axios.post(this.loginUrl, this.login_info)
         .then(
           (response) => {
-          // 認証に必要な情報をlocalStorageに保存
-            console.log(response.headers)
             localStorage.setItem('access-token', response.headers['access-token'])
             localStorage.setItem('client', response.headers.client)
             localStorage.setItem('uid', response.headers.uid)

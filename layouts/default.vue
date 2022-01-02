@@ -37,7 +37,7 @@
         v-text="title"
       />
       <v-spacer />
-      <span v-if="$auth.loggedIn">
+      <span v-if="user">
         <v-btn
           color="error"
           dark
@@ -63,6 +63,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   name: 'DefaultLayout',
   data () {
@@ -93,9 +94,20 @@ export default {
       title: 'Tutor_Management_App'
     }
   },
+
+  computed: {
+    ...mapGetters({
+      user: 'user_information/getUser'
+    })
+  },
+
   methods: {
     logout () {
-      this.$axios.delete('/api/v1/student/sign_out', {
+      this.url = this.setUrl()
+      console.log(localStorage.getItem('uid'))
+      console.log(localStorage.getItem('access-token'))
+      console.log(localStorage.getItem('client'))
+      this.$axios.delete(this.url, {
         headers: {
           uid: localStorage.getItem('uid'),
           'access-token': localStorage.getItem('access-token'),
@@ -119,6 +131,13 @@ export default {
           )
           this.$store.commit('user_information/logout')
         })
+    },
+    setUrl () {
+      if (this.user && !this.user.teacher) {
+        return '/api/v1/student/sign_out'
+      } else if (this.user && this.user.teacher) {
+        return '/api/v1/teacher/sign_out'
+      }
     }
   }
 }

@@ -3,6 +3,7 @@
     :title="title"
     :link-title="link_title"
     :link="link"
+    :login-url="login_url"
   />
 </template>
 
@@ -18,7 +19,8 @@ export default {
     return {
       title: '生徒ログイン',
       link_title: '先生はこちら',
-      link: '/login/teacher_login'
+      link: '/login/teacher_login',
+      login_url: '/api/v1/student/sign_in'
     }
   }
 }
