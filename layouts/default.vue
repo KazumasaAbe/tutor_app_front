@@ -36,9 +36,20 @@
         @click="$router.push('/')"
         v-text="title"
       />
+      <v-spacer />
+      <span v-if="user">
+        <v-btn
+          color="error"
+          dark
+          @click="logout"
+        >
+          ログアウト
+        </v-btn>
+      </span>
     </v-app-bar>
     <v-main>
       <v-container>
+        <FlashMessage />
         <Nuxt />
       </v-container>
     </v-main>
@@ -52,6 +63,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   name: 'DefaultLayout',
   data () {
@@ -80,6 +92,52 @@ export default {
       right: true,
       rightDrawer: false,
       title: 'Tutor_Management_App'
+    }
+  },
+
+  computed: {
+    ...mapGetters({
+      user: 'user_information/getUser'
+    })
+  },
+
+  methods: {
+    logout () {
+      this.url = this.setUrl()
+      console.log(localStorage.getItem('uid'))
+      console.log(localStorage.getItem('access-token'))
+      console.log(localStorage.getItem('client'))
+      this.$axios.delete(this.url, {
+        headers: {
+          uid: localStorage.getItem('uid'),
+          'access-token': localStorage.getItem('access-token'),
+          client: localStorage.getItem('client')
+        }
+      })
+        .then((res) => {
+          this.$auth.logout()
+          localStorage.removeItem('uid')
+          localStorage.removeItem('access-token')
+          localStorage.removeItem('client')
+          this.$router.push('/')
+          this.$store.dispatch(
+            'flashMessage/showMessage',
+            {
+              message: 'ログアウトしました',
+              type: 'success',
+              status: true
+            },
+            { root: true }
+          )
+          this.$store.commit('user_information/logout')
+        })
+    },
+    setUrl () {
+      if (this.user && !this.user.teacher) {
+        return '/api/v1/student/sign_out'
+      } else if (this.user && this.user.teacher) {
+        return '/api/v1/teacher/sign_out'
+      }
     }
   }
 }
