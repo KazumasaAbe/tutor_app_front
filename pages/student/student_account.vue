@@ -6,6 +6,11 @@
           生徒マイページ
         </v-card-title>
         <v-card-actions>
+          <v-btn
+            @click="check()"
+          >
+            確認
+          </v-btn>
           <v-spacer />
         </v-card-actions>
       </v-card>
@@ -15,6 +20,20 @@
 
 <script>
 export default {
-  name: 'Inquiry'
+  data () {
+    return {
+      abilities: []
+    }
+  },
+  mounted () {
+    this.$axios
+      .get('/api/v1/academic_abilities.json')
+      .then(response => (this.abilities = response.data))
+  },
+  methods: {
+    check () {
+      console.log(this.abilities)
+    }
+  }
 }
 </script>
