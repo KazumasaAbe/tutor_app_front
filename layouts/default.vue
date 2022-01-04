@@ -10,11 +10,12 @@
     >
       <v-list>
         <v-list-item
-          v-for="(item, i) in items"
+          v-for="(item, i) in setItems()"
           :key="i"
           :to="item.to"
           router
           exact
+          @click="itemActionClick(item.action)"
         >
           <v-list-item-action>
             <v-icon>{{ item.icon }}</v-icon>
@@ -38,13 +39,7 @@
       />
       <v-spacer />
       <span v-if="user">
-        <v-btn
-          color="error"
-          dark
-          @click="logout"
-        >
-          ログアウト
-        </v-btn>
+        <v-icon>mdi-account-circle</v-icon>
       </span>
     </v-app-bar>
     <v-main>
@@ -71,21 +66,111 @@ export default {
       clipped: false,
       drawer: false,
       fixed: false,
-      items: [
+      default_items: [
         {
           icon: 'mdi-account-details',
           title: '先生一覧',
-          to: '/teacher_index'
+          to: '/teacher_index',
+          action: false
         },
         {
           icon: 'mdi-email-edit-outline',
           title: 'お問合せ',
-          to: '/inquiry'
+          to: '/inquiry',
+          action: false
         },
         {
           icon: 'mdi-login',
           title: 'ログイン',
-          to: '/login/student_login'
+          to: '/login/student_login',
+          action: false
+        }
+      ],
+      student_items: [
+        {
+          icon: 'mdi-account-details',
+          title: '先生一覧',
+          to: '/teacher_index',
+          action: false
+        },
+        {
+          icon: 'mdi-email-edit-outline',
+          title: 'お問合せ',
+          to: '/inquiry',
+          action: false
+        },
+        {
+          icon: 'mdi-account',
+          title: 'マイページ',
+          to: '/student/student_account',
+          action: false
+        },
+        {
+          icon: 'mdi-cog-outline',
+          title: '設定',
+          to: '/student/student_config',
+          action: false
+        },
+        {
+          icon: 'mdi-login',
+          title: 'ログアウト',
+          action: 'logout'
+        }
+      ],
+      teacher_items: [
+        {
+          icon: 'mdi-account-details',
+          title: '先生一覧',
+          to: '/teacher_index',
+          action: false
+        },
+        {
+          icon: 'mdi-account',
+          title: 'マイページ',
+          to: '/teacher/teacher_account',
+          action: false
+        },
+        {
+          icon: 'mdi-cog-outline',
+          title: '設定',
+          to: '/teacher/teacher_config',
+          action: false
+        },
+        {
+          icon: 'mdi-login',
+          title: 'ログアウト',
+          action: 'logout'
+        }
+      ],
+      admin_items: [
+        {
+          icon: 'mdi-account-details',
+          title: '先生一覧',
+          to: '/teacher_index',
+          action: false
+        },
+        {
+          icon: 'mdi-account-details',
+          title: '生徒一覧',
+          to: '/admin/student_index',
+          action: false
+        },
+        {
+          icon: 'mdi-email-fast',
+          title: 'お問合せ一覧',
+          to: '/admin/inquiry_index',
+          action: false
+        },
+        {
+          icon: 'mdi-clipboard-text-outline',
+          title: 'お知らせ',
+          to: '/admin/notice_index',
+          action: false
+        },
+        {
+          icon: 'mdi-login',
+          title: 'ログアウト',
+          action: 'logout'
         }
       ],
       miniVariant: false,
@@ -137,6 +222,22 @@ export default {
         return '/api/v1/student/sign_out'
       } else if (this.user && this.user.teacher) {
         return '/api/v1/teacher/sign_out'
+      }
+    },
+    setItems () {
+      if (!this.user) {
+        return this.default_items
+      } else if (this.user && !this.user.admin && !this.user.teacher) {
+        return this.student_items
+      } else if (this.user && !this.user.admin && this.user.teacher) {
+        return this.teacher_items
+      } else if (this.user && this.user.admin) {
+        return this.admin_items
+      }
+    },
+    itemActionClick (action) {
+      if (action === 'logout') {
+        this.logout()
       }
     }
   }

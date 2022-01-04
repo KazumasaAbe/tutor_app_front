@@ -3,16 +3,10 @@
     <v-col cols="12" sm="8" md="6">
       <v-card>
         <v-card-title class="headline">
-          先生一覧
+          お問合わせ一覧
         </v-card-title>
         <v-card-actions>
           <v-spacer />
-          <div
-            v-for="(msg, i) in msgs"
-            :key="i"
-          >
-            {{ msg }}
-          </div>
         </v-card-actions>
       </v-card>
     </v-col>
@@ -21,16 +15,6 @@
 
 <script>
 export default {
-  data () {
-    return {
-      msgs: []
-    }
-  },
-  methods: {
-    getMsg () {
-      this.$axios.$get('/api/v1/hello')
-        .then(res => this.msgs.push(res))
-    }
-  }
+  name: 'InquiryIndex'
 }
 </script>
