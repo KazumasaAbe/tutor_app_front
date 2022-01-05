@@ -4,48 +4,29 @@
     <h2 class="mt-2">
       先生一覧
     </h2>
-    <!-- test -->
-    <table v-if="teachers.length">
-      <thead>
-        <tr>
-          <th>id</th>
-          <th>name</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="(teacher, i) in teachers"
-          :key="`teacher-${i}`"
-        >
-          <td>{{ teacher.id }}</td>
-          <td>{{ teacher.name }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div v-else>
-      ユーザーが取得できませんでした
-    </div>
-    <!-- test -->
     <v-dialog
       v-model="dialog"
       width="470"
     >
       <template #activator="{ on, attrs }">
-        <v-card
-          class="mt-5"
-          max-width="250"
-          v-bind="attrs"
-          v-on="on"
-        >
-          <v-img
-            :src="image_src"
-          />
+        <v-row>
+          <v-card
+            v-for="(teacher, i) in teachers"
+            :key="`teacher-${i}`"
+            class="mt-7 mr-10"
+            max-width="250"
+            v-bind="attrs"
+            v-on="on"
+          >
+            <v-img
+              :src="image_src"
+            />
 
-          <v-card-title class="text-h5 pt-0 pb-4 justify-center">
-            〇〇先生
-          </v-card-title>
-        </v-card>
+            <v-card-title class="text-h5 pt-0 pb-4 justify-center">
+              {{ teacher.name }}先生
+            </v-card-title>
+          </v-card>
+        </v-row>
       </template>
 
       <v-card>
@@ -70,7 +51,7 @@
                 <v-list-item-title
                   class="text-h6 pt-1 pl-4"
                 >
-                  槇 貴弘
+                  {{ showItem.name }}
                 </v-list-item-title>
                 <v-divider />
               </v-list-item-content>
@@ -110,9 +91,7 @@
             outlined
             class="pa-3"
           >
-            初めまして！槇貴弘といいます。<br>
-            生徒に合わせ教え方を変えて勉強が楽しい！と<br>
-            思ってもらえるように笑顔を絶やさず丁寧に教えます！
+            {{ showItem.introduction }}
           </v-card>
         </v-col>
       </v-card>
@@ -142,6 +121,13 @@ export default {
         )
         return dateTimeFormat.format(new Date(date))
       }
+    }
+  },
+  methods: {
+    showItem (teacher) {
+      // eslint-disable-next-line no-undef
+      this.showTeacher = Object.assign({}, teacher)
+      this.dialog = true
     }
   }
 }
