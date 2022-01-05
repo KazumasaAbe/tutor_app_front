@@ -3,7 +3,7 @@
     <v-col cols="12" sm="8" md="6">
       <v-card>
         <v-card-title class="headline">
-          お問合わせ
+          生徒マイページ
         </v-card-title>
         <v-card-actions>
           <v-spacer />
