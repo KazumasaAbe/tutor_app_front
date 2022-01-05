@@ -17,9 +17,10 @@
             max-width="250"
             v-bind="attrs"
             v-on="on"
+            @click="showItem(teacher)"
           >
             <v-img
-              :src="image_src"
+              :src="setImage()"
             />
 
             <v-card-title class="text-h5 pt-0 pb-4 justify-center">
@@ -38,7 +39,7 @@
               tile
             >
               <v-img
-                :src="image_src"
+                :src="setImage()"
               />
             </v-avatar>
           </v-col>
@@ -51,7 +52,7 @@
                 <v-list-item-title
                   class="text-h6 pt-1 pl-4"
                 >
-                  {{ showItem.name }}
+                  {{ showTeacher.name }}
                 </v-list-item-title>
                 <v-divider />
               </v-list-item-content>
@@ -91,7 +92,7 @@
             outlined
             class="pa-3"
           >
-            {{ showItem.introduction }}
+            {{ showTeacher.introduction }}
           </v-card>
         </v-col>
       </v-card>
@@ -110,7 +111,11 @@ export default {
   data () {
     return {
       dialog: false,
-      image_src: require('@/assets/images/default_icon.png')
+      showTeacher: {
+        name: '',
+        teacher_icon: '',
+        introduction: ''
+      }
     }
   },
   computed: {
@@ -128,6 +133,13 @@ export default {
       // eslint-disable-next-line no-undef
       this.showTeacher = Object.assign({}, teacher)
       this.dialog = true
+    },
+    setImage () {
+      if (this.showTeacher.teacher_icon) {
+        return this.showTeacher.teacher_icon
+      } else {
+        return '/img/default_icon.png'
+      }
     }
   }
 }
