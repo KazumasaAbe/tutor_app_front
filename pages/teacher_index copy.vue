@@ -8,20 +8,26 @@
       width="470"
     >
       <template #activator="{ on, attrs }">
-        <v-card
-          class="mt-5"
-          max-width="250"
-          v-bind="attrs"
-          v-on="on"
-        >
-          <v-img
-            :src="image_src"
-          />
+        <v-row>
+          <v-card
+            v-for="(teacher, i) in displayLists"
+            :key="`teacher-${i}`"
+            class="mt-7 mr-10"
+            max-width="250"
+            height="270"
+            v-bind="attrs"
+            v-on="on"
+            @click="showItem(teacher)"
+          >
+            <v-img
+              :src="setImage()"
+            />
 
-          <v-card-title class="text-h5 pt-0 pb-4 justify-center">
-            〇〇先生
-          </v-card-title>
-        </v-card>
+            <v-card-title class="text-h5 pt-0 pb-4 justify-center">
+              {{ teacher.name }}先生
+            </v-card-title>
+          </v-card>
+        </v-row>
       </template>
 
       <v-card>
@@ -33,7 +39,7 @@
               tile
             >
               <v-img
-                :src="image_src"
+                :src="setImage()"
               />
             </v-avatar>
           </v-col>
@@ -46,7 +52,7 @@
                 <v-list-item-title
                   class="text-h6 pt-1 pl-4"
                 >
-                  槇 貴弘
+                  {{ showTeacher.name }}
                 </v-list-item-title>
                 <v-divider />
               </v-list-item-content>
@@ -57,7 +63,7 @@
                 <v-list-item-title
                   class="text-h6 pt-1 pl-4"
                 >
-                  国語
+                  {{ showTeacher.subjects }}
                 </v-list-item-title>
                 <v-divider />
               </v-list-item-content>
@@ -86,22 +92,81 @@
             outlined
             class="pa-3"
           >
-            初めまして！槇貴弘といいます。<br>
-            生徒に合わせ教え方を変えて勉強が楽しい！と<br>
-            思ってもらえるように笑顔を絶やさず丁寧に教えます！
+            {{ showTeacher.introduction }}
           </v-card>
         </v-col>
       </v-card>
     </v-dialog>
+    <div
+      class="text-center pt-8"
+    >
+      <v-pagination
+        v-model="page"
+        :length="length"
+        @input="pageChange"
+      />
+    </div>
   </v-app>
 </template>
 
 <script>
+import goTo from 'vuetify/es5/services/goto'
 export default {
+  async asyncData ({ $axios }) {
+    let teachers = []
+    await $axios.$get('/api/v1/teachers')
+      .then(res => (teachers = res))
+    return { teachers }
+  },
   data () {
     return {
+      requestUrl: '/api/v1/teachers',
+      page: 1,
+      length: 0,
+      displayLists: [],
+      pageSize: 8,
       dialog: false,
-      image_src: require('@/assets/images/default_icon.png')
+      showTeacher: {
+        name: '',
+        teacher_icon: '',
+        introduction: '',
+        subjects: {
+          teacher_id: '',
+          subject: ''
+        }
+      }
+    }
+  },
+  computed: {
+    dateFormat () {
+      return (date) => {
+        const dateTimeFormat = new Intl.DateTimeFormat(
+          'ja', { dateStyle: 'medium', timeStyle: 'short' }
+        )
+        return dateTimeFormat.format(new Date(date))
+      }
+    }
+  },
+  mounted () {
+    this.length = Math.ceil(this.teachers.length / this.pageSize)
+    // this.displayLists = this.teachers.slice(this.pageSize * (pageNumber - 1), this.pageSize * (pageNumber))
+    this.displayLists = this.teachers.slice(0, this.pageSize)
+  },
+  methods: {
+    showItem (teacher) {
+      this.showTeacher = Object.assign({}, teacher)
+      this.dialog = true
+    },
+    setImage () {
+      if (this.showTeacher.teacher_icon) {
+        return this.showTeacher.teacher_icon
+      } else {
+        return '/img/default_icon.png'
+      }
+    },
+    pageChange (pageNumber) {
+      goTo(0)
+      this.displayLists = this.teachers.slice(this.pageSize * (pageNumber - 1), this.pageSize * (pageNumber))
     }
   }
 }

@@ -1,4 +1,3 @@
-
 <template>
   <v-app>
     <h2 class="mt-2">
@@ -11,10 +10,11 @@
       <template #activator="{ on, attrs }">
         <v-row>
           <v-card
-            v-for="(teacher, i) in teachers"
+            v-for="(teacher, i) in displayLists"
             :key="`teacher-${i}`"
             class="mt-7 mr-10"
             max-width="250"
+            height="270"
             v-bind="attrs"
             v-on="on"
             @click="showItem(teacher)"
@@ -63,7 +63,7 @@
                 <v-list-item-title
                   class="text-h6 pt-1 pl-4"
                 >
-                  国語
+                  {{ showTeacher.subjects }}
                 </v-list-item-title>
                 <v-divider />
               </v-list-item-content>
@@ -97,10 +97,20 @@
         </v-col>
       </v-card>
     </v-dialog>
+    <div
+      class="text-center pt-8"
+    >
+      <v-pagination
+        v-model="page"
+        :length="length"
+        @input="pageChange"
+      />
+    </div>
   </v-app>
 </template>
 
 <script>
+import goTo from 'vuetify/es5/services/goto'
 export default {
   async asyncData ({ $axios }) {
     let teachers = []
@@ -110,11 +120,20 @@ export default {
   },
   data () {
     return {
+      requestUrl: '/api/v1/teachers',
+      page: 1,
+      length: 0,
+      displayLists: [],
+      pageSize: 8,
       dialog: false,
       showTeacher: {
         name: '',
         teacher_icon: '',
-        introduction: ''
+        introduction: '',
+        subjects: {
+          teacher_id: '',
+          subject: ''
+        }
       }
     }
   },
@@ -128,9 +147,13 @@ export default {
       }
     }
   },
+  mounted () {
+    this.length = Math.ceil(this.teachers.length / this.pageSize)
+    // this.displayLists = this.teachers.slice(this.pageSize * (pageNumber - 1), this.pageSize * (pageNumber))
+    this.displayLists = this.teachers.slice(0, this.pageSize)
+  },
   methods: {
     showItem (teacher) {
-      // eslint-disable-next-line no-undef
       this.showTeacher = Object.assign({}, teacher)
       this.dialog = true
     },
@@ -140,6 +163,10 @@ export default {
       } else {
         return '/img/default_icon.png'
       }
+    },
+    pageChange (pageNumber) {
+      goTo(0)
+      this.displayLists = this.teachers.slice(this.pageSize * (pageNumber - 1), this.pageSize * (pageNumber))
     }
   }
 }
