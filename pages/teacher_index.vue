@@ -5,7 +5,7 @@
     </h2>
     <v-dialog
       v-model="dialog"
-      width="470"
+      width="500"
     >
       <template #activator="{ on, attrs }">
         <v-row>
@@ -34,8 +34,8 @@
         <v-row>
           <v-col>
             <v-avatar
-              class="profile"
-              size="164"
+              class="profile pt-3"
+              size="200"
               tile
             >
               <v-img
@@ -50,7 +50,7 @@
               <v-list-item-content>
                 <v-list-item-subtitle>名前</v-list-item-subtitle>
                 <v-list-item-title
-                  class="text-h6 pt-1 pl-4"
+                  class="text-h5 pt-1 pl-4"
                 >
                   {{ showTeacher.name }}
                 </v-list-item-title>
@@ -61,9 +61,9 @@
               <v-list-item-content>
                 <v-list-item-subtitle>担当教科</v-list-item-subtitle>
                 <v-list-item-title
-                  class="text-h6 pt-1 pl-4"
+                  class="text-h5 pt-1 pl-4"
                 >
-                  {{ showTeacher.subjects }}
+                  {{ showTeacher.subject }}
                 </v-list-item-title>
                 <v-divider />
               </v-list-item-content>
@@ -90,7 +90,7 @@
           </v-list-item-subtitle>
           <v-card
             outlined
-            class="pa-3"
+            class="text-h6 pa-5"
           >
             {{ showTeacher.introduction }}
           </v-card>

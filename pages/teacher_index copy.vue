@@ -63,7 +63,7 @@
                 <v-list-item-title
                   class="text-h6 pt-1 pl-4"
                 >
-                  {{ showTeacher.subjects }}
+                  {{ showTeacher.subject }}
                 </v-list-item-title>
                 <v-divider />
               </v-list-item-content>
