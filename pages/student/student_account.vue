@@ -5,16 +5,46 @@
         <v-col cols="12" sm="8" md="6">
           <v-card>
             <v-card-title class="headline">
-              生徒マイページ
+              生徒
             </v-card-title>
+            <v-card-actions>
+              <Chart
+                :national-language="60"
+                :english="60"
+                :arithmetic="80"
+                :science="76"
+                :society="88"
+                :type="line"
+              />
+            </v-card-actions>
             <v-card-actions>
               <v-btn
                 @click="check()"
               >
                 確認
               </v-btn>
-              <v-spacer />
-              <Chart />
+            </v-card-actions>
+          </v-card>
+          <v-card>
+            <v-card-title class="headline">
+              生徒
+            </v-card-title>
+            <v-card-actions>
+              <Chart
+                :national-language="70"
+                :english="40"
+                :arithmetic="50"
+                :science="45"
+                :society="55"
+                :type="line"
+              />
+            </v-card-actions>
+            <v-card-actions>
+              <v-btn
+                @click="check()"
+              >
+                確認
+              </v-btn>
             </v-card-actions>
           </v-card>
         </v-col>

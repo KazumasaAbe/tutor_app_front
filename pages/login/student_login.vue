@@ -1,7 +1,7 @@
 <template>
   <LoginForm
     :title="title"
-    :link-Title="link_title"
+    :link-title="link_title"
     :link="link"
     :login-url="login_url"
   />
