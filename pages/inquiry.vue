@@ -8,6 +8,34 @@
         <v-card-actions>
           <v-spacer />
         </v-card-actions>
+        <form>
+          <v-text-field
+            v-model="name"
+            :error-messages="errors"
+            label="お名前"
+            prepend-icon="mdi-account-circle"
+            required
+          />
+          <v-text-field
+            v-model="mail"
+            :error-messages="errors"
+            label="メールアドレス"
+            prepend-icon="mdi-account-circle"
+            required
+          />
+          <v-textarea
+            solo
+            name="inquiry"
+            label="お問い合わせ内容をご記入ください"
+          />
+          <v-btn
+            elevation="2"
+            block
+            color="primary"
+          >
+            送信
+          </v-btn>
+        </form>
       </v-card>
     </v-col>
   </v-row>
@@ -15,6 +43,26 @@
 
 <script>
 export default {
-  name: 'Inquiry'
+  data () {
+    return {
+      msgs: [],
+      inquiry: {
+        name: '',
+        email: ''
+
+      }
+    }
+  },
+  methods: {
+    getMsg () {
+      this.$axios.$post('/api/vi/hello', this.lnquiry)
+        .then{res => this.msgs.push(res)}
+    }
+  }
 }
 </script>
+<style>
+form{
+  padding:20px;
+}
+</style>
