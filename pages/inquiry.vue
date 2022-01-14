@@ -8,38 +8,40 @@
         <v-card-actions>
           <v-spacer />
         </v-card-actions>
-        <v-form
-          ref="form"
-          v-model="inquiry"
+        <v-text-field
+          v-model="inquiry.name"
+          :error-messages="errors"
+          label="お名前"
+          prepend-icon="mdi-account-circle"
+          required
+        />
+        <v-text-field
+          v-model="inquiry.email"
+          :error-messages="errors"
+          label="メールアドレス"
+          prepend-icon="mdi-account-circle"
+          required
+        />
+        <v-textarea
+          v-model="inquiry.content"
+          solo
+          name="inquirys"
+          label="お問い合わせ内容をご記入ください"
+        />
+        <v-btn
+          elevation="2"
+          block
+          color="primary"
+          @click="postMsg"
         >
-          <v-text-field
-            v-model="name"
-            :error-messages="errors"
-            label="お名前"
-            prepend-icon="mdi-account-circle"
-            required
-          />
-          <v-text-field
-            v-model="mail"
-            :error-messages="errors"
-            label="メールアドレス"
-            prepend-icon="mdi-account-circle"
-            required
-          />
-          <v-textarea
-            solo
-            name="inquirys"
-            label="お問い合わせ内容をご記入ください"
-          />
-          <v-btn
-            elevation="2"
-            block
-            color="primary"
-            @click="getMsg"
-          >
-            送信
-          </v-btn>
-        </v-form>
+          送信
+        </v-btn>
+        <div
+          v-for="(msg, i) in msgs"
+          :key="i"
+        >
+          {{ msg }}
+        </div>
       </v-card>
     </v-col>
   </v-row>
@@ -51,9 +53,9 @@ export default {
     return {
       msgs: [],
       inquiry: {
-        name: 'aaa',
-        email: 'aaa'
-
+        name: '',
+        email: '',
+        content: ''
       }
     }
   },
@@ -61,10 +63,12 @@ export default {
   //   console.log("aaa")
   // },
   methods: {
-    getMsg () {
-      this.$axios.$post('/api/v1/hello', this.inquiry)
+    postMsg () {
+      this.$axios.$post('/api/v1/inquiries', this.inquiry)
         .then(res => this.msgs.push(res))
-      console.log(this.msgs)
+        .catch((e) => {
+          console.log(e.response.data.errors.full_messages)
+        })
     }
   }
 }
