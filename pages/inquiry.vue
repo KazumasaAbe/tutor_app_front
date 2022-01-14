@@ -8,7 +8,10 @@
         <v-card-actions>
           <v-spacer />
         </v-card-actions>
-        <form>
+        <v-form
+          ref="form"
+          v-model="inquiry"
+        >
           <v-text-field
             v-model="name"
             :error-messages="errors"
@@ -25,17 +28,18 @@
           />
           <v-textarea
             solo
-            name="inquiry"
+            name="inquirys"
             label="お問い合わせ内容をご記入ください"
           />
           <v-btn
             elevation="2"
             block
             color="primary"
+            @click="getMsg"
           >
             送信
           </v-btn>
-        </form>
+        </v-form>
       </v-card>
     </v-col>
   </v-row>
@@ -47,16 +51,20 @@ export default {
     return {
       msgs: [],
       inquiry: {
-        name: '',
-        email: ''
+        name: 'aaa',
+        email: 'aaa'
 
       }
     }
   },
+  // mounted () {
+  //   console.log("aaa")
+  // },
   methods: {
     getMsg () {
-      this.$axios.$post('/api/vi/hello', this.lnquiry)
-        .then{res => this.msgs.push(res)}
+      this.$axios.$post('/api/v1/hello', this.inquiry)
+        .then(res => this.msgs.push(res))
+      console.log(this.msgs)
     }
   }
 }
