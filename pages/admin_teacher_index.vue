@@ -9,7 +9,9 @@
       <v-toolbar
         flat
       >
-        <v-card-title>
+        <v-card-title
+          class="ml-auto"
+        >
           <v-text-field
             v-model="search"
             append-icon="mdi-magnify"
@@ -164,7 +166,7 @@
             small
             class="mr-2"
             color="blue"
-            @click="editItem(item), showItem(item)"
+            @click="showItem(item)"
           >
             mdi-pencil
           </v-icon>
@@ -216,39 +218,8 @@ export default {
       teacher_icon: '',
       introduction: '',
       subject: ''
-    },
-    editedIndex: -1,
-    editedItem: {
-      name: '',
-      email: '',
-      teacher_icon: '',
-      introduction: '',
-      subjects: {
-        teacher_id: '',
-        subject: ''
-      }
-    },
-    defaultItem: {
-      name: '',
-      email: '',
-      teacher_icon: '',
-      introduction: '',
-      subjects: {
-        teacher_id: '',
-        subject: ''
-      }
     }
   }),
-
-  watch: {
-    dialog (val) {
-      val || this.close()
-    },
-    dialogDelete (val) {
-      val || this.closeDelete()
-    }
-  },
-
   methods: {
     showItem (item) {
       this.showTeacher = Object.assign({}, item)
@@ -261,21 +232,24 @@ export default {
         return '/img/default_icon.png'
       }
     },
-    editItem (item) {
-      this.editedIndex = this.teachers.indexOf(item)
-      this.editedItem = Object.assign({}, item)
-      this.dialog = true
-    },
-
     deleteItem (item) {
-      this.editedIndex = this.teachers.indexOf(item)
-      this.editedItem = Object.assign({}, item)
+      this.showTeacher = Object.assign({}, item)
       this.dialogDelete = true
     },
-
     deleteItemConfirm () {
-      this.teachers.splice(this.editedIndex, 1)
-      this.closeDelete()
+      const url = `/api/v1/teachers/${this.showTeacher.id}`
+      this.$axios.delete(url)
+        .then(() => {
+          this.$store.dispatch(
+            'flashMessage/showMessage',
+            {
+              message: '先生情報を削除しました',
+              type: 'danger',
+              status: true
+            }
+          )
+          this.$router.go('/admin_teacher_index')
+        })
     },
 
     close () {
@@ -298,6 +272,7 @@ export default {
       const url = `/api/v1/teachers/${this.showTeacher.id}`
       this.$axios.put(url, this.showTeacher)
         .then((res) => {
+          this.dialog = false
           this.$store.dispatch(
             'flashMessage/showMessage',
             {
@@ -307,7 +282,6 @@ export default {
             }
           )
           this.$router.go('/admin_teacher_index')
-          this.dialog = false
         })
     }
   }
