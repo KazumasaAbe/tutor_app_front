@@ -65,11 +65,14 @@
                     <v-list-item
                       class="mt-n3"
                     >
-                      <v-icon
-                        large
+                      <v-avatar
+                        class="profile"
+                        size="50"
                       >
-                        mdi-account-circle-outline
-                      </v-icon>
+                        <v-img
+                          :src="setImage()"
+                        />
+                      </v-avatar>
                       <v-list-item-content>
                         <v-list-item-subtitle
                           class="ml-3 mb-n2"
@@ -126,7 +129,7 @@
                       <v-list-item-content>
                         <v-text-field
                           v-model="showStudent.address"
-                          class="text-h6 pt-1 pl-4 mt-n1"
+                          class="text-h6 pt-1 pl-4"
                         />
                       </v-list-item-content>
                     </v-list-item>
@@ -231,7 +234,7 @@
             <v-dialog v-model="dialogDelete" max-width="500px">
               <v-card>
                 <v-card-title class="text-h5">
-                  この生徒を削除します。よろしいですか？
+                  この先生を削除します。よろしいですか？
                 </v-card-title>
                 <v-card-actions>
                   <v-spacer />

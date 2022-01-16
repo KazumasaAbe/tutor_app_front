@@ -163,15 +163,13 @@
         </template>
         <template #[`item.actions`]="{ item }">
           <v-icon
-            small
-            class="mr-2"
+            class="mr-1"
             color="blue"
             @click="showItem(item)"
           >
             mdi-pencil
           </v-icon>
           <v-icon
-            small
             color="red"
             @click="deleteItem(item)"
           >
