@@ -5,42 +5,59 @@
         <v-card-title class="headline">
           お問合わせ
         </v-card-title>
-        <v-card-actions>
-          <v-spacer />
-        </v-card-actions>
-        <v-text-field
-          v-model="inquiry.name"
-          :error-messages="errors"
-          label="お名前"
-          prepend-icon="mdi-account-circle"
-          required
-        />
-        <v-text-field
-          v-model="inquiry.email"
-          :error-messages="errors"
-          label="メールアドレス"
-          prepend-icon="mdi-account-circle"
-          required
-        />
-        <v-textarea
-          v-model="inquiry.content"
-          solo
-          name="inquirys"
-          label="お問い合わせ内容をご記入ください"
-        />
-        <v-btn
-          elevation="2"
-          block
-          color="primary"
-          @click="postMsg"
-        >
-          送信
-        </v-btn>
-        <div
-          v-for="(msg, i) in msgs"
-          :key="i"
-        >
-          {{ msg }}
+        <div class="container">
+          <div
+            v-for="(msg, i) in msgs"
+            :key="i"
+          >
+            <div
+              v-for="(ms , j) in msg"
+              :key="j"
+            >
+              <p
+                v-for="(m , k) in ms"
+                :key="k"
+              >
+                <span class="text-red">
+                  ・{{ j }}{{ m }}
+                </span>
+              </p>
+              <!-- {{ j }} {{ ms }} -->
+            </div>
+            <!-- {{ msg }} -->
+          </div>
+          <v-text-field
+            v-model="inquiry.name"
+            label="お名前"
+            prepend-icon="mdi-account-circle"
+          />
+          <v-text-field
+            v-model="inquiry.email"
+            label="メールアドレス"
+            prepend-icon="mdi-account-circle"
+          />
+          <v-textarea
+            v-model="inquiry.content"
+            solo
+            label="お問い合わせ内容をご記入ください"
+          />
+          <v-card-actions>
+            <v-btn
+              elevation="2"
+              block
+              color="primary"
+              @click="postMsg"
+            >
+              送信
+            </v-btn>
+          </v-card-actions>
+          <div
+            v-for="(m, i) in result"
+            :key="i"
+            class="result"
+          >
+            {{ m }}
+          </div>
         </div>
       </v-card>
     </v-col>
@@ -52,6 +69,7 @@ export default {
   data () {
     return {
       msgs: [],
+      result: [],
       inquiry: {
         name: '',
         email: '',
@@ -64,17 +82,34 @@ export default {
   // },
   methods: {
     postMsg () {
+      this.msgs.length = 0
+      this.result.length = 0
       this.$axios.$post('/api/v1/inquiries', this.inquiry)
-        .then(res => this.msgs.push(res))
+        .then(res => this.result.push(res),
+          this.inquiry.name = '',
+          this.inquiry.email = '',
+          this.inquiry.content = '')
         .catch((e) => {
-          console.log(e.response.data.errors.full_messages)
+          this.msgs.push(e.response.data)
         })
     }
   }
 }
 </script>
 <style>
-form{
+p{
+  margin-bottom: 0px !important;
+}
+.container{
   padding:20px;
+}
+.headline{
+  padding-bottom: 0px !important;
+}
+.text-red{
+  color: red;
+}
+.result{
+  padding-top:10px;
 }
 </style>
