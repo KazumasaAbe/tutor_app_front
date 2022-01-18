@@ -307,7 +307,8 @@ export default {
       address: '',
       birthday: '',
       student_icon: '',
-      teacher_id: ''
+      teacher_id: '',
+      teacher_icon: ''
     }
   }),
 
@@ -323,7 +324,7 @@ export default {
     },
     setImage () {
       if (this.showStudent.student_icon) {
-        return this.showStudent.student_icon
+        return this.showStudent.teacher_icon
       } else {
         return '/img/default_icon.png'
       }

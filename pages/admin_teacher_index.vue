@@ -215,7 +215,9 @@ export default {
       email: '',
       teacher_icon: '',
       introduction: '',
-      subject: ''
+      subjects_attributes: {
+        subject: []
+      }
     }
   }),
   methods: {
