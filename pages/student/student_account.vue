@@ -4,7 +4,7 @@
       <v-row justify="center" align="center">
         <v-col cols="12">
           <v-card-title class="headline">
-            生徒
+            {{ user.email }}さん
           </v-card-title>
         </v-col>
       </v-row>
@@ -117,7 +117,7 @@ export default {
         title: {
           display: true,
           fontSize: 18,
-          text: 'テストの点数'
+          text: '学力確認テスト'
         },
         responsive: true,
         maintainAspectRatio: false,
@@ -188,10 +188,16 @@ export default {
         ]
       }
       this.line_options = {
+        title: {
+          display: true,
+          fontSize: 18,
+          text: '成長記録'
+        },
         responsive: true,
         maintainAspectRatio: false,
         legend: {
-          position: 'top'
+          position: 'top',
+          display: false
         },
         layout: {
           padding: 0
