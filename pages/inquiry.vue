@@ -15,16 +15,24 @@
               :key="j"
             >
               <p
-                v-for="(m , k) in ms"
+                v-for="(text , k) in ms"
                 :key="k"
+                class="text-red"
               >
-                <span class="text-red">
-                  ・{{ j }}{{ m }}
+                <span v-if="j == 'name'">
+                  ・{{ labels.name }}{{ text }}
+                </span>
+                <span v-else-if="j == 'email'">
+                  ・{{ labels.email }}{{ text }}
+                </span>
+                <span v-else-if="j == 'content'">
+                  ・{{ labels.content }}{{ text }}
+                </span>
+                <span v-else>
+                  ・{{ j }}{{ text }}
                 </span>
               </p>
-              <!-- {{ j }} {{ ms }} -->
             </div>
-            <!-- {{ msg }} -->
           </div>
           <v-text-field
             v-model="inquiry.name"
@@ -52,11 +60,11 @@
             </v-btn>
           </v-card-actions>
           <div
-            v-for="(m, i) in result"
+            v-for="(msg, i) in result"
             :key="i"
             class="result"
           >
-            {{ m }}
+            {{ msg }}
           </div>
         </div>
       </v-card>
@@ -74,6 +82,11 @@ export default {
         name: '',
         email: '',
         content: ''
+      },
+      labels: {
+        name: 'お名前',
+        email: 'メールアドレス',
+        content: 'お問い合わせ内容'
       }
     }
   },
@@ -97,19 +110,19 @@ export default {
 }
 </script>
 <style>
-p{
+p {
   margin-bottom: 0px !important;
 }
-.container{
+.container {
   padding:20px;
 }
-.headline{
+.headline {
   padding-bottom: 0px !important;
 }
-.text-red{
+.text-red {
   color: red;
 }
-.result{
+.result {
   padding-top:10px;
 }
 </style>
