@@ -42,7 +42,7 @@
           <v-text-field
             v-model="inquiry.email"
             label="メールアドレス"
-            prepend-icon="mdi-account-circle"
+            prepend-icon="mdi-email-outline"
           />
           <v-textarea
             v-model="inquiry.content"
