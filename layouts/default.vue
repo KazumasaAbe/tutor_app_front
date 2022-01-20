@@ -189,9 +189,6 @@ export default {
   methods: {
     logout () {
       this.url = this.setUrl()
-      console.log(localStorage.getItem('uid'))
-      console.log(localStorage.getItem('access-token'))
-      console.log(localStorage.getItem('client'))
       this.$axios.delete(this.url, {
         headers: {
           uid: localStorage.getItem('uid'),

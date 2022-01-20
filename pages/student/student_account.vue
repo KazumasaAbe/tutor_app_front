@@ -1,20 +1,272 @@
 <template>
-  <v-row justify="center" align="center">
-    <v-col cols="12" sm="8" md="6">
-      <v-card>
-        <v-card-title class="headline">
-          生徒マイページ
-        </v-card-title>
-        <v-card-actions>
-          <v-spacer />
-        </v-card-actions>
-      </v-card>
-    </v-col>
-  </v-row>
+  <v-main>
+    <v-container>
+      <v-row justify="center" align="center">
+        <v-col cols="12">
+          <v-card-title class="headline">
+            {{ user.email }}さん
+          </v-card-title>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="6">
+          <v-card-actions>
+            <v-select
+              v-model="select_ability"
+              item-text="implementation_month"
+              :items="descending_abilities"
+              :menu-props="{ maxHeight: '200' }"
+              label="実施月を選択してください"
+              persistent-hint
+            />
+          </v-card-actions>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="6">
+          <v-card-actions>
+            <BarChart
+              :chart-data="bar_data_collection"
+              :options="bar_options"
+            />
+          </v-card-actions>
+        </v-col>
+        <v-col cols="6">
+          <v-card-actions>
+            <LineChart
+              :chart-data="line_data_collection"
+              :options="line_options"
+            />
+          </v-card-actions>
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-main>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+import BarChart from '~/components/BarChart.vue'
+
 export default {
-  name: 'Inquiry'
+  components: {
+    BarChart
+  },
+  data () {
+    return {
+      bar_data_collection: { datasets: [], options: {} },
+      line_data_collection: { datasets: [], options: {} },
+      abilities: [],
+      descending_abilities: [],
+      ascending_abilities: [],
+      sort_abilities: [],
+      abilitiy: {},
+      select_ability: {},
+      line_label: [],
+      national_language_scores: [],
+      arithmetic_scores: [],
+      science_scores: [],
+      english_scores: [],
+      society_scores: []
+    }
+  },
+  computed: {
+    ...mapGetters({
+      user: 'user_information/getUser'
+    })
+  },
+  watch: {
+    select_ability (val, old) {
+      this.setAbility(val)
+    }
+  },
+  mounted () {
+    this.$axios
+      .get('/api/v1/academic_abilities.json')
+      .then((response) => {
+        this.abilities = response.data
+        this.sortAbilities()
+        this.selectAbility()
+        this.lineLabelList()
+        this.barFillData()
+      })
+  },
+  methods: {
+    barFillData () {
+      this.bar_data_collection = {
+        labels: ['国語', '算数', '理科', '英語', '社会'],
+        datasets: [
+          {
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(153, 102, 255, 0.2)'
+            ],
+            data: [
+              this.getNationalLanguageScore(),
+              this.getArithmeticScore(),
+              this.getScienceScore(),
+              this.getEnglishScore(),
+              this.getSocietyScore()]
+          }
+        ]
+      }
+      this.bar_options = {
+        title: {
+          display: true,
+          fontSize: 18,
+          text: '学力確認テスト'
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+          position: 'top',
+          display: false
+        },
+        layout: {
+          padding: 0
+        },
+        scales: {
+          yAxes: [
+            {
+              ticks: {
+                beginAtZero: true,
+                min: 0,
+                max: 100
+              }
+            }
+          ]
+        }
+      }
+    },
+    lineFillData () {
+      this.line_data_collection = {
+        labels: this.line_label,
+        datasets: [
+          {
+            fill: false,
+            label: '国語',
+            borderColor: [
+              'rgba(255, 99, 132, 0.2)'
+            ],
+            data: this.national_language_scores
+          },
+          {
+            fill: false,
+            label: '算数',
+            borderColor: [
+              'rgba(54, 162, 235, 0.2)'
+            ],
+            data: this.arithmetic_scores
+          },
+          {
+            fill: false,
+            label: '理科',
+            borderColor: [
+              'rgba(255, 206, 86, 0.2)'
+            ],
+            data: this.science_scores
+          },
+          {
+            fill: false,
+            label: '社会',
+            borderColor: [
+              'rgba(75, 192, 192, 0.2)'
+            ],
+            data: this.english_scores
+          },
+          {
+            fill: false,
+            label: '英語',
+            borderColor: [
+              'rgba(153, 102, 255, 0.2)'
+            ],
+            data: this.society_scores
+          }
+        ]
+      }
+      this.line_options = {
+        title: {
+          display: true,
+          fontSize: 18,
+          text: '成長記録'
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+          position: 'top',
+          display: false
+        },
+        layout: {
+          padding: 0
+        },
+        scales: {
+          yAxes: [
+            {
+              ticks: {
+                beginAtZero: true,
+                min: 0,
+                max: 100
+              }
+            }
+          ]
+        }
+      }
+    },
+    getNationalLanguageScore () {
+      return this.abilitiy[0].national_language
+    },
+    getArithmeticScore () {
+      return this.abilitiy[0].arithmetic
+    },
+    getScienceScore () {
+      return this.abilitiy[0].science
+    },
+    getEnglishScore () {
+      return this.abilitiy[0].english
+    },
+    getSocietyScore () {
+      return this.abilitiy[0].society
+    },
+    // ↓セレクトの初期値を最新月にセットする
+    selectAbility () {
+      this.select_ability = this.descending_abilities[0].implementation_month
+    },
+    // ↓セレクトで選択月が変わった場合の処理
+    setAbility (month) {
+      this.abilitiy = this.abilities.filter(
+        abilitiy => abilitiy.implementation_month === month)
+      this.barFillData()
+      this.lineFillData()
+    },
+    // ↓APIから取得したデータを実施月の昇降順に並び替え
+    sortAbilities () {
+      // ↓降順で並び替え
+      this.descending_abilities = this.abilities.slice()
+      this.descending_abilities = this.descending_abilities
+        .sort((a, b) => new Date(b.implementation_month) - new Date(a.implementation_month))
+      // ↓昇順で並び替え
+      this.ascending_abilities = this.abilities.slice()
+      this.ascending_abilities = this.ascending_abilities
+        .sort((a, b) => new Date(a.implementation_month) - new Date(b.implementation_month))
+      this.setLineChatData()
+    },
+    // 折れ線グラフのデータを教科毎に配列を作成
+    setLineChatData () {
+      this.national_language_scores = this.ascending_abilities.map(abilitiy => abilitiy.national_language)
+      this.arithmetic_scores = this.ascending_abilities.map(abilitiy => abilitiy.arithmetic)
+      this.science_scores = this.ascending_abilities.map(abilitiy => abilitiy.science)
+      this.english_scores = this.ascending_abilities.map(abilitiy => abilitiy.english)
+      this.society_scores = this.ascending_abilities.map(abilitiy => abilitiy.society)
+    },
+    // 折れ線グラフのラベルをAPIデータから実施月で配列を作成
+    lineLabelList () {
+      this.line_label = this.abilities.map(abilitiy => abilitiy.implementation_month)
+      this.line_label = this.line_label
+        .sort((a, b) => new Date(a) - new Date(b))
+    }
+  }
 }
 </script>
