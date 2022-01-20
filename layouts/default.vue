@@ -188,31 +188,21 @@ export default {
 
   methods: {
     logout () {
-      this.url = this.setUrl()
-      this.$axios.delete(this.url, {
-        headers: {
-          uid: localStorage.getItem('uid'),
-          'access-token': localStorage.getItem('access-token'),
-          client: localStorage.getItem('client')
-        }
-      })
-        .then((res) => {
-          this.$auth.logout()
-          localStorage.removeItem('uid')
-          localStorage.removeItem('access-token')
-          localStorage.removeItem('client')
-          this.$router.push('/')
-          this.$store.dispatch(
-            'flashMessage/showMessage',
-            {
-              message: 'ログアウトしました',
-              type: 'success',
-              status: true
-            },
-            { root: true }
-          )
-          this.$store.commit('user_information/logout')
-        })
+      this.$auth.logout()
+      localStorage.removeItem('uid')
+      localStorage.removeItem('access-token')
+      localStorage.removeItem('client')
+      this.$router.push('/')
+      this.$store.dispatch(
+        'flashMessage/showMessage',
+        {
+          message: 'ログアウトしました',
+          type: 'success',
+          status: true
+        },
+        { root: true }
+      )
+      this.$store.commit('user_information/logout')
     },
     setUrl () {
       if (this.user && !this.user.teacher) {
