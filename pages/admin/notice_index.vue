@@ -211,7 +211,6 @@
 
 <script>
 export default {
-  // name: 'NoticeIndex'
   async asyncData ({ $axios }) {
     let notices = []
     await $axios.$get('/api/v1/notices')
@@ -228,11 +227,10 @@ export default {
         align: 'start',
         value: 'created_at'
       },
-      // { text: 'id', value: 'id' },
+      { text: 'id', value: 'id' },
       { text: 'title', value: 'title' },
       { text: '編集/削除', value: 'actions', sortable: false }
     ],
-    // notices: [],
     notice: {
       id: '',
       title: '',
@@ -267,22 +265,15 @@ export default {
     }
   },
 
-  // mounted () {
-  // this.$axios.$get('/api/v1/notices')
-  //   .then(res => (notices = res))
-  // dateFormat ()
-  // },
-
-  created () {
-    this.initialize()
+  mounted () {
+    this.loadItems()
   },
 
   methods: {
-    initialize () {
-      let notices = []
+    loadItems () {
+      this.notices = []
       this.$axios.$get('/api/v1/notices')
-        .then(res => (notices = res))
-      return { notices }
+        .then(res => (this.notices = res))
     },
     iconImag () {
       if (this.notice.notice_title) {
@@ -341,8 +332,8 @@ export default {
         Object.assign(this.notices[this.editedIndex], this.notice)
       } else {
         this.$axios.$post('/api/v1/notices', this.notice)
-        this.notices.push(this.notice)
-        // this.notice.push(this.notices)
+          .then(res => this.notices.push(res))
+        this.loadItems()
       }
       this.close()
     }
