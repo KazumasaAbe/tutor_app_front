@@ -215,7 +215,8 @@ export default {
       email: '',
       teacher_icon: '',
       introduction: '',
-      subjects_attributes: {
+      subjects: {
+        id: [],
         subject: []
       }
     }
