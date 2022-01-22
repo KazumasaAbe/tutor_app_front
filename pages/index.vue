@@ -240,6 +240,9 @@ th{
         </v-card-actions>
       </v-card>
     </v-col>
+    <v-btn link nuxt to="/admin_teacher_index">
+      先生一覧へ
+    </v-btn>
   </v-row>
 </template>
 
