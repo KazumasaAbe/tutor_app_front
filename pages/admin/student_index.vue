@@ -1,20 +1,391 @@
 <template>
-  <v-row justify="center" align="center">
-    <v-col cols="12" sm="8" md="6">
-      <v-card>
-        <v-card-title class="headline">
-          生徒一覧
-        </v-card-title>
-        <v-card-actions>
+  <v-app>
+    <h2 class="mt-2">
+      生徒一覧
+    </h2>
+    <v-data-table
+      :headers="headers"
+      :items="students"
+      :items-per-page="5"
+      :search="search"
+      class="elevation-1 text-h6 mt-3"
+    >
+      <template #top>
+        <v-toolbar
+          flat
+        >
+          <v-toolbar-title>
+            <v-dialog
+              v-model="dialog"
+              max-width="600px"
+            >
+              <template #activator="{ on, attrs }">
+                <v-btn
+                  color="primary"
+                  dark
+                  class="mb-2 mt-2"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  生徒追加
+                </v-btn>
+              </template>
+            </v-dialog>
+          </v-toolbar-title>
           <v-spacer />
-        </v-card-actions>
-      </v-card>
-    </v-col>
-  </v-row>
+          <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="Search"
+            single-line
+            hide-details
+          />
+          <v-dialog
+            v-model="dialog"
+            max-width="600px"
+          >
+            <v-card
+              class="mt-5"
+            >
+              <v-card-title
+                class="ml-auto"
+              />
+              <v-card>
+                <v-row>
+                  <v-col
+                    class="mt-4 ml-12 pl-12"
+                    cols="9"
+                  >
+                    <v-card-title
+                      class="pt-5"
+                    >
+                      <span
+                        class="text-h5  font-weight-black"
+                      >
+                        {{ showStudent.name }}くん（生徒）
+                      </span>
+                    </v-card-title>
+                    <v-list-item
+                      class="mt-n3"
+                    >
+                      <v-icon
+                        large
+                      >
+                        mdi-account-circle-outline
+                      </v-icon>
+                      <v-list-item-content>
+                        <v-list-item-subtitle
+                          class="ml-3 mb-n2"
+                        >
+                          名前
+                        </v-list-item-subtitle>
+                        <v-text-field
+                          v-model="showStudent.name"
+                          class="text-h6 pt-1 pl-4"
+                        />
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-list-item
+                      class="mt-n5"
+                    >
+                      <v-icon
+                        large
+                      >
+                        mdi-email
+                      </v-icon>
+                      <v-list-item-content>
+                        <v-list-item-subtitle
+                          class="ml-3 mb-n2"
+                        >
+                          メールアドレス
+                        </v-list-item-subtitle>
+                        <v-text-field
+                          v-model="showStudent.email"
+                          class="text-h6 pt-1 pl-4"
+                        />
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-list-item
+                      class="mt-n5"
+                    >
+                      <v-icon x-large>
+                        mdi-home-variant-outline
+                      </v-icon>
+                      <v-list-item-content>
+                        <v-list-item-subtitle
+                          class="ml-3 mb-n2"
+                        >
+                          郵便番号
+                        </v-list-item-subtitle>
+                        <v-text-field
+                          v-model="showStudent.post_code"
+                          class="text-h6 pt-1 pl-4"
+                        />
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-list-item
+                      class="mt-n8 ml-10"
+                    >
+                      <v-list-item-content>
+                        <v-text-field
+                          v-model="showStudent.address"
+                          class="text-h6 pt-1 pl-4 mt-n1"
+                        />
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-list-item
+                      class="mt-n5"
+                    >
+                      <v-icon x-large>
+                        mdi-cake-variant
+                      </v-icon>
+                      <v-list-item-content>
+                        <v-list-item-subtitle
+                          class="ml-3 mb-n2"
+                        >
+                          生年月日
+                        </v-list-item-subtitle>
+                        <div>
+                          <v-menu
+                            ref="menu"
+                            v-model="menu"
+                            :close-on-content-click="false"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="auto"
+                          >
+                            <template #activator="{ on, attrs }">
+                              <v-text-field
+                                v-model="showStudent.birthday"
+                                class="text-h6 pt-1 pl-4"
+                                readonly
+                                v-bind="attrs"
+                                v-on="on"
+                              />
+                            </template>
+                            <v-date-picker
+                              v-model="showStudent.birthday"
+                              :active-picker.sync="activePicker"
+                              :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
+                              min="2000-01-01"
+                              locale="jp-ja"
+                              :day-format="date => new Date(date).getDate()"
+                              @change="save"
+                            />
+                          </v-menu>
+                        </div>
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-list-item
+                      class="mt-n5"
+                    >
+                      <v-avatar
+                        class="profile"
+                        size="50"
+                      >
+                        <v-img
+                          :src="setImage()"
+                        />
+                      </v-avatar>
+
+                      <v-list-item-content>
+                        <v-list-item-subtitle
+                          class="ml-3 mb-n2"
+                        >
+                          担当の先生
+                        </v-list-item-subtitle>
+                        <v-text-field
+                          v-model="showStudent.teacher_id"
+                          class="text-h6 pt-1 pl-4"
+                        />
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-col>
+                  <v-col>
+                    <v-card-actions>
+                      <v-spacer />
+                      <v-icon
+                        class="mt-n4 mr-3"
+                        @click="close"
+                      >
+                        mdi-close-box-outline
+                      </v-icon>
+                    </v-card-actions>
+                  </v-col>
+                </v-row>
+                <v-card-actions>
+                  <v-col
+                    cols="10"
+                    class="mt-n5 ml-10 pl-10 mb-2"
+                  >
+                    <v-btn
+                      color="primary"
+                      dark
+                      block
+                      @click="update"
+                    >
+                      保存
+                    </v-btn>
+                  </v-col>
+                </v-card-actions>
+              </v-card>
+            </v-card>
+          </v-dialog>
+          <v-dialog v-model="dialogDelete" max-width="500px">
+            <v-card>
+              <v-card-title class="text-h5">
+                この生徒を削除します。よろしいですか？
+              </v-card-title>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn color="red darken-1" text @click="closeDelete">
+                  いいえ
+                </v-btn>
+                <v-btn color="blue darken-1" text @click="deleteItemConfirm">
+                  はい
+                </v-btn>
+                <v-spacer />
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-toolbar>
+      </template>
+      <template #[`item.actions`]="{ item }">
+        <v-icon
+          class="mr-1"
+          color="blue"
+          @click="showItem(item)"
+        >
+          mdi-pencil
+        </v-icon>
+        <v-icon
+          class=""
+          color="red"
+          @click="deleteItem(item)"
+        >
+          mdi-delete
+        </v-icon>
+      </template>
+    </v-data-table>
+  </v-app>
 </template>
 
 <script>
 export default {
-  name: 'StudentIndex'
+  async asyncData ({ $axios }) {
+    let students = []
+    await $axios.$get('/api/v1/students')
+      .then(res => (students = res))
+    return { students }
+  },
+  data: () => ({
+    activePicker: null,
+    date: null,
+    menu: false,
+    search: '',
+    dialog: false,
+    dialogDelete: false,
+    headers: [
+      {
+        text: '名前',
+        align: 'start',
+        sortable: false,
+        value: 'name'
+      },
+      { text: '', value: '', sortable: false },
+      { text: '', value: '', sortable: false },
+      { text: '', value: '', sortable: false },
+      { text: '', value: '', sortable: false },
+      { text: '', value: '', sortable: false },
+      { text: '', value: '', sortable: false },
+      { text: '', value: '', sortable: false },
+      { text: '', value: '', sortable: false },
+      { text: '編集/削除', value: 'actions', sortable: false }
+    ],
+    showStudent: {
+      name: '',
+      email: '',
+      post_code: '',
+      address: '',
+      birthday: '',
+      student_icon: '',
+      teacher_id: '',
+      teacher_icon: ''
+    }
+  }),
+
+  watch: {
+    menu (val) {
+      val && setTimeout(() => (this.activePicker = 'YEAR'))
+    }
+  },
+  methods: {
+    showItem (item) {
+      this.showStudent = Object.assign({}, item)
+      this.dialog = true
+    },
+    setImage () {
+      if (this.showStudent.student_icon) {
+        return this.showStudent.teacher_icon
+      } else {
+        return '/img/default_icon.png'
+      }
+    },
+    deleteItem (item) {
+      this.showStudent = Object.assign({}, item)
+      this.dialogDelete = true
+    },
+    deleteItemConfirm () {
+      const url = `/api/v1/students/${this.showStudent.id}`
+      this.$axios.delete(url)
+        .then(() => {
+          this.$store.dispatch(
+            'flashMessage/showMessage',
+            {
+              message: '先生情報を削除しました',
+              type: 'danger',
+              status: true
+            }
+          )
+          this.$router.go('/admin_student_index')
+        })
+    },
+
+    close () {
+      this.dialog = false
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      })
+    },
+
+    closeDelete () {
+      this.dialogDelete = false
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      })
+    },
+
+    update () {
+      const url = `/api/v1/students/${this.showStudent.id}`
+      this.$axios.put(url, this.showStudent)
+        .then((res) => {
+          this.dialog = false
+          this.$store.dispatch(
+            'flashMessage/showMessage',
+            {
+              message: '先生情報を更新しました',
+              type: 'info',
+              status: true
+            }
+          )
+          this.$router.go('/admin_student_index')
+        })
+    },
+    save (showStudent) {
+      this.$refs.menu.save(showStudent)
+    }
+  }
 }
 </script>
