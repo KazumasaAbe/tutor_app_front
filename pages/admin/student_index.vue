@@ -104,14 +104,24 @@
                       </v-icon>
                       <v-list-item-content>
                         <v-list-item-subtitle
-                          class="ml-3 mb-n2"
+                          class="ml-3 mb-n1"
                         >
                           郵便番号
                         </v-list-item-subtitle>
-                        <v-text-field
-                          v-model="showStudent.post_code"
-                          class="text-h6 pt-1 pl-4"
-                        />
+                        <v-row>
+                          <v-text-field
+                            v-model="showStudent.post_code"
+                            class="text-h6 ml-7"
+                          />
+                          <v-btn
+                            class="mt-3 mr-5"
+                            color="primary"
+                            small
+                            @click="searchAddressInfo"
+                          >
+                            検索
+                          </v-btn>
+                        </v-row>
                       </v-list-item-content>
                     </v-list-item>
                     <v-list-item
@@ -120,7 +130,7 @@
                       <v-list-item-content>
                         <v-text-field
                           v-model="showStudent.address"
-                          class="text-h6 pt-1 pl-4 mt-n1"
+                          class="text-h7 pt-1 pl-4 mt-n1"
                         />
                       </v-list-item-content>
                     </v-list-item>
@@ -181,13 +191,14 @@
 
                       <v-list-item-content>
                         <v-list-item-subtitle
-                          class="ml-3 mb-n2"
+                          class="ml-1 mb-n2"
                         >
                           担当の先生
                         </v-list-item-subtitle>
-                        <v-text-field
+                        <v-select
                           v-model="showStudent.teacher_name"
-                          class="text-h6 pt-1 pl-4"
+                          :items="showStudent.teacher_name"
+                          class="text-h6 pt-1 pl-2"
                         />
                       </v-list-item-content>
                     </v-list-item>
@@ -305,7 +316,10 @@ export default {
         teacher_name: '',
         teacher_icon: ''
       }
-    }
+    },
+    addressData1: '',
+    addressData2: '',
+    addressData3: ''
   }),
 
   watch: {
@@ -379,6 +393,16 @@ export default {
     },
     save (showStudent) {
       this.$refs.menu.save(showStudent)
+    },
+    searchAddressInfo () {
+      const axios = require('axios')
+      const url = 'http://zipcloud.ibsnet.co.jp/api/search?zipcode='
+      axios.get(url + this.showStudent.post_code).then((res) => {
+        this.addressData1 = res.data.results[0].address1
+        this.addressData2 = res.data.results[0].address2
+        this.addressData3 = res.data.results[0].address3
+        this.showStudent.address = this.addressData1 + this.addressData2 + this.addressData3
+      })
     }
   }
 }
