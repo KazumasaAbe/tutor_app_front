@@ -130,7 +130,7 @@
                       <v-list-item-content>
                         <v-text-field
                           v-model="showStudent.address"
-                          class="text-h7 pt-1 pl-4 mt-n1"
+                          class="text-h7 pt-1 pl-4"
                         />
                       </v-list-item-content>
                     </v-list-item>
@@ -182,7 +182,7 @@
                     >
                       <v-avatar
                         class="profile"
-                        size="50"
+                        size="45"
                       >
                         <v-img
                           :src="setImage()"
@@ -191,14 +191,14 @@
 
                       <v-list-item-content>
                         <v-list-item-subtitle
-                          class="ml-1 mb-n2"
+                          class="ml-2 mb-n2"
                         >
                           担当の先生
                         </v-list-item-subtitle>
                         <v-select
                           v-model="showStudent.teacher_name"
-                          :items="showStudent.teacher_name"
-                          class="text-h6 pt-1 pl-2"
+                          :items="nameTeachers"
+                          class="text-h6 pt-1 ml-3"
                         />
                       </v-list-item-content>
                     </v-list-item>
@@ -317,6 +317,7 @@ export default {
         teacher_icon: ''
       }
     },
+    nameTeachers: [],
     addressData1: '',
     addressData2: '',
     addressData3: ''
@@ -330,6 +331,8 @@ export default {
   methods: {
     showItem (item) {
       this.showStudent = Object.assign({}, item)
+      this.nameTeachers = this.showStudent.teacher_name
+      console.log(this.nameTeachers)
       this.dialog = true
     },
     setImage () {
