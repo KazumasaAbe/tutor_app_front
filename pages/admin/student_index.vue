@@ -44,30 +44,21 @@
             v-model="dialog"
             max-width="600px"
           >
-            <v-card
-              class="mt-5"
-            >
-              <v-card-title
-                class="ml-auto"
-              />
+            <v-card>
               <v-card>
                 <v-row>
                   <v-col
-                    class="mt-4 ml-12 pl-12"
+                    class="ml-12 pl-12"
                     cols="9"
                   >
-                    <v-card-title
-                      class="pt-5"
-                    >
+                    <v-card-title>
                       <span
-                        class="text-h5  font-weight-black"
+                        class="mt-2 text-h5 font-weight-black"
                       >
                         {{ showStudent.name }}くん（生徒）
                       </span>
                     </v-card-title>
-                    <v-list-item
-                      class="mt-n3"
-                    >
+                    <v-list-item>
                       <v-icon
                         large
                       >
@@ -195,7 +186,7 @@
                           担当の先生
                         </v-list-item-subtitle>
                         <v-text-field
-                          v-model="showStudent.teacher_id"
+                          v-model="showStudent.teacher_name"
                           class="text-h6 pt-1 pl-4"
                         />
                       </v-list-item-content>
@@ -205,7 +196,7 @@
                     <v-card-actions>
                       <v-spacer />
                       <v-icon
-                        class="mt-n4 mr-3"
+                        class="mr-2"
                         @click="close"
                       >
                         mdi-close-box-outline
@@ -310,7 +301,10 @@ export default {
       birthday: '',
       student_icon: '',
       teacher_id: '',
-      teacher_icon: ''
+      teachers: {
+        teacher_name: '',
+        teacher_icon: ''
+      }
     }
   }),
 
@@ -325,7 +319,7 @@ export default {
       this.dialog = true
     },
     setImage () {
-      if (this.showStudent.student_icon) {
+      if (this.showStudent.teacher_icon) {
         return this.showStudent.teacher_icon
       } else {
         return '/img/default_icon.png'
