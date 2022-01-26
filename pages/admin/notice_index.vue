@@ -227,10 +227,11 @@ export default {
         align: 'start',
         value: 'created_at'
       },
-      { text: 'id', value: 'id' },
+      // { text: 'id', value: 'id' },
       { text: 'title', value: 'title' },
       { text: '編集/削除', value: 'actions', sortable: false }
     ],
+    notices: [],
     notice: {
       id: '',
       title: '',
@@ -269,7 +270,16 @@ export default {
     this.loadItems()
   },
 
+  created () {
+    this.initialize()
+  },
+
   methods: {
+    initialize () {
+      this.notices = []
+      this.$axios.$get('/api/v1/notices')
+        .then(res => (this.notices = res))
+    },
     loadItems () {
       this.notices = []
       this.$axios.$get('/api/v1/notices')
@@ -333,6 +343,7 @@ export default {
       } else {
         this.$axios.$post('/api/v1/notices', this.notice)
           .then(res => this.notices.push(res))
+        // this.notices.push(this.notice)
         this.loadItems()
       }
       this.close()
