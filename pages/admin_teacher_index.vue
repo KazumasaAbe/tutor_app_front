@@ -17,7 +17,7 @@
           <v-toolbar-title>
             <v-dialog
               v-model="dialog"
-              max-width="700px"
+              max-width="650px"
             >
               <template #activator="{ on, attrs }">
                 <v-btn
@@ -42,14 +42,9 @@
           />
           <v-dialog
             v-model="dialog"
-            max-width="700px"
+            max-width="650px"
           >
-            <v-card
-              class="mt-5"
-            >
-              <v-card-title
-                class="ml-auto"
-              />
+            <v-card>
               <v-card>
                 <v-row>
                   <v-col>
@@ -105,7 +100,7 @@
                     <v-card-actions>
                       <v-spacer />
                       <v-icon
-                        class="mt-n4 mr-3"
+                        class="mr-2"
                         @click="close"
                       >
                         mdi-close-box-outline
