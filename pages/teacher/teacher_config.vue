@@ -22,7 +22,7 @@
                   >
                     <template #activator="{ on, attrs }">
                       <v-img
-                        v-model="teacherItem.teacher_icon"
+                        v-model="teacher.teacher_icon"
                         max-height="300"
                         max-width="300"
                         :src="setImage()"
@@ -58,7 +58,7 @@
                           cols="12"
                         >
                           <v-img
-                            v-model="teacherItem.teacher_icon"
+                            v-model="teacher.teacher_icon"
                             max-height="250"
                             max-width="250"
                             :src="iconImage()"
@@ -138,7 +138,7 @@
                                 cols="8"
                               >
                                 <v-text-field
-                                  v-model="teacherItem.name"
+                                  v-model="teacher.name"
                                   label="名前"
                                   :hide-details="true"
                                   class="text-field"
@@ -220,7 +220,7 @@
                               >
                                 <!-- class="text-field" -->
                                 <v-text-field
-                                  v-model="teacherItem.email"
+                                  v-model="teacher.email"
                                   label="メールアドレス"
                                   :hide-details="true"
                                   class="text-field"
@@ -300,65 +300,65 @@
                         >
                           <v-container fluid>
                             <!-- v-model="teacher.subjects.subject" -->
-                            <p>{{ teacherItem.subjects }}</p>
+                            <p>{{ teacher.subjects }}</p>
                             <!-- <p>{{ serected }}</p> -->
                             <v-checkbox
-                              v-model="teacherItem.subjects"
+                              v-model="teacher.subjects"
                               label="国語"
                               value="国語"
                               class="checkbox-size"
                             />
                             <v-checkbox
-                              v-model="teacherItem.subjects"
+                              v-model="teacher.subjects"
                               label="算数"
                               value="算数"
                               class="checkbox-size"
                             />
                             <v-checkbox
-                              v-model="teacherItem.subjects"
+                              v-model="teacher.subjects"
                               label="理科"
                               value="理科"
                               class="checkbox-size"
                             />
                             <v-checkbox
-                              v-model="teacherItem.subjects"
+                              v-model="teacher.subjects"
                               label="英語"
                               value="英語"
                               class="checkbox-size"
                             />
                             <v-checkbox
-                              v-model="teacherItem.subjects"
+                              v-model="teacher.subjects"
                               label="社会"
                               value="社会"
                               class="checkbox-size"
                             />
-                            <p>{{ serected }}</p>
+                            <p>{{ selected }}</p>
                             <v-checkbox
-                              v-model="serected"
+                              v-model="selected"
                               label="国語"
                               value="国語"
                               class="checkbox-size"
                             />
                             <v-checkbox
-                              v-model="serected"
+                              v-model="selected"
                               label="算数"
                               value="算数"
                               class="checkbox-size"
                             />
                             <v-checkbox
-                              v-model="serected"
+                              v-model="selected"
                               label="理科"
                               value="理科"
                               class="checkbox-size"
                             />
                             <v-checkbox
-                              v-model="serected"
+                              v-model="selected"
                               label="英語"
                               value="英語"
                               class="checkbox-size"
                             />
                             <v-checkbox
-                              v-model="serected"
+                              v-model="selected"
                               label="社会"
                               value="社会"
                               class="checkbox-size"
@@ -432,7 +432,7 @@
                           cols="12"
                         >
                           <v-textarea
-                            v-model="teacherItem.introduction"
+                            v-model="teacher.introduction"
                             solo
                             height="145px"
                             class="box7"
@@ -498,46 +498,44 @@ export default {
     // console.log(teachers)
     return { teachers }
   },
-  data () {
-    return {
-      // requestUrl: '/api/v1/teachers/:id',
-      // page: 1,
-      // length: 0,
-      // displayLists: [],
-      // pageSize: 8,
-      dialog1: false,
-      dialog2: false,
-      dialog3: false,
-      dialog4: false,
-      dialog5: false,
-      teacher: {
+  data: () => ({
+    // requestUrl: '/api/v1/teachers/:id',
+    // page: 1,
+    // length: 0,
+    // displayLists: [],
+    // pageSize: 8,
+    dialog1: false,
+    dialog2: false,
+    dialog3: false,
+    dialog4: false,
+    dialog5: false,
+    teacher: {
+      id: '',
+      name: '',
+      email: '',
+      teacher_icon: '',
+      introduction: '',
+      subjects: {
         id: '',
-        name: '',
-        email: '',
-        teacher_icon: '',
-        introduction: '',
-        subjects: [{
-          id: '',
-          subject: ''
-        }]
-      },
-      teacherItem: [{
+        subject: []
+      }
+    },
+    teacherItem: {
+      id: '',
+      name: '',
+      email: '',
+      teacher_icon: '',
+      introduction: '',
+      subjects: {
         id: '',
-        name: '',
-        email: '',
-        teacher_icon: '',
-        introduction: '',
-        subjects: {
-          suject: [],
-          id: ''
-        }
-      }],
-      // user: [{
-      //   id: ''
-      // }],
-      serected: []
-    }
-  },
+        suject: []
+      }
+    },
+    // user: [{
+    //   id: ''
+    // }],
+    selected: []
+  }),
 
   computed: {
     ...mapGetters({
@@ -551,21 +549,23 @@ export default {
     }
   },
 
+  // mounted () {
+  //   this.loadItems()
+  // },
+
   methods: {
+    // loadItems () {
+    //   this.teachers = []
+    //   this.$axios.$get('/api/v1/teachers')
+    //     .then(res => (this.teachers = res))
+    // },
     editItem (teacherItem) {
       // this.editedIndex = this.notices.indexOf(item)
       this.teacher = Object.assign({}, teacherItem)
+      // console.log(this.teacher)
+      // console.log(teacherItem)
       this.dialog = true
     },
-    // editnameItem (user) {
-    //   this.teacher = Object.assign({}, user)
-    //   this.dialog = true
-    // console.log(user)
-    // },
-    // editemailItem (user) {
-    //   this.teacher = Object.assign({}, user)
-    //   this.dialog = true
-    // },
     // showItem (teacher) {
     //   this.showTeacher = Object.assign({}, teacher)
     //   this.dialog = true
@@ -598,6 +598,17 @@ export default {
       // this.teachers.id === this.user.id
       // console.log(this.teachers.id)
       // console.log(this.user.id)
+      // this.loadItems()
+      this.$store.dispatch(
+        'flashMessage/showMessage',
+        {
+          message: '先生情報を更新しました',
+          type: 'info',
+          status: true
+        }
+      )
+      this.$router.go('/teacher/teacher_config')
+      this.close()
     }
   }
 }
