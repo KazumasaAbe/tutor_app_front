@@ -44,30 +44,21 @@
             v-model="dialog"
             max-width="600px"
           >
-            <v-card
-              class="mt-5"
-            >
-              <v-card-title
-                class="ml-auto"
-              />
+            <v-card>
               <v-card>
                 <v-row>
                   <v-col
-                    class="mt-4 ml-12 pl-12"
+                    class="ml-12 pl-12"
                     cols="9"
                   >
-                    <v-card-title
-                      class="pt-5"
-                    >
+                    <v-card-title>
                       <span
-                        class="text-h5  font-weight-black"
+                        class="mt-2 text-h5 font-weight-black"
                       >
                         {{ showStudent.name }}くん（生徒）
                       </span>
                     </v-card-title>
-                    <v-list-item
-                      class="mt-n3"
-                    >
+                    <v-list-item>
                       <v-icon
                         large
                       >
@@ -113,14 +104,24 @@
                       </v-icon>
                       <v-list-item-content>
                         <v-list-item-subtitle
-                          class="ml-3 mb-n2"
+                          class="ml-3 mb-n1"
                         >
                           郵便番号
                         </v-list-item-subtitle>
-                        <v-text-field
-                          v-model="showStudent.post_code"
-                          class="text-h6 pt-1 pl-4"
-                        />
+                        <v-row>
+                          <v-text-field
+                            v-model="showStudent.post_code"
+                            class="text-h6 ml-7"
+                          />
+                          <v-btn
+                            class="mt-3 mr-5"
+                            color="primary"
+                            small
+                            @click="searchAddressInfo"
+                          >
+                            検索
+                          </v-btn>
+                        </v-row>
                       </v-list-item-content>
                     </v-list-item>
                     <v-list-item
@@ -129,7 +130,7 @@
                       <v-list-item-content>
                         <v-text-field
                           v-model="showStudent.address"
-                          class="text-h6 pt-1 pl-4 mt-n1"
+                          class="text-h7 pt-1 pl-4"
                         />
                       </v-list-item-content>
                     </v-list-item>
@@ -181,7 +182,7 @@
                     >
                       <v-avatar
                         class="profile"
-                        size="50"
+                        size="45"
                       >
                         <v-img
                           :src="setImage()"
@@ -190,13 +191,14 @@
 
                       <v-list-item-content>
                         <v-list-item-subtitle
-                          class="ml-3 mb-n2"
+                          class="ml-2 mb-n2"
                         >
                           担当の先生
                         </v-list-item-subtitle>
-                        <v-text-field
-                          v-model="showStudent.teacher_id"
-                          class="text-h6 pt-1 pl-4"
+                        <v-select
+                          v-model="showStudent.teacher_name"
+                          :items="nameTeachers"
+                          class="text-h6 pt-1 ml-3"
                         />
                       </v-list-item-content>
                     </v-list-item>
@@ -205,7 +207,7 @@
                     <v-card-actions>
                       <v-spacer />
                       <v-icon
-                        class="mt-n4 mr-3"
+                        class="mr-2"
                         @click="close"
                       >
                         mdi-close-box-outline
@@ -310,8 +312,15 @@ export default {
       birthday: '',
       student_icon: '',
       teacher_id: '',
-      teacher_icon: ''
-    }
+      teachers: {
+        teacher_name: '',
+        teacher_icon: ''
+      }
+    },
+    nameTeachers: [],
+    addressData1: '',
+    addressData2: '',
+    addressData3: ''
   }),
 
   watch: {
@@ -322,10 +331,12 @@ export default {
   methods: {
     showItem (item) {
       this.showStudent = Object.assign({}, item)
+      this.nameTeachers = this.showStudent.teacher_name
+      console.log(this.nameTeachers)
       this.dialog = true
     },
     setImage () {
-      if (this.showStudent.student_icon) {
+      if (this.showStudent.teacher_icon) {
         return this.showStudent.teacher_icon
       } else {
         return '/img/default_icon.png'
@@ -385,6 +396,16 @@ export default {
     },
     save (showStudent) {
       this.$refs.menu.save(showStudent)
+    },
+    searchAddressInfo () {
+      const axios = require('axios')
+      const url = 'http://zipcloud.ibsnet.co.jp/api/search?zipcode='
+      axios.get(url + this.showStudent.post_code).then((res) => {
+        this.addressData1 = res.data.results[0].address1
+        this.addressData2 = res.data.results[0].address2
+        this.addressData3 = res.data.results[0].address3
+        this.showStudent.address = this.addressData1 + this.addressData2 + this.addressData3
+      })
     }
   }
 }

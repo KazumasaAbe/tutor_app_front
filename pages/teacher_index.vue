@@ -151,7 +151,6 @@ export default {
     this.length = Math.ceil(this.teachers.length / this.pageSize)
     // this.displayLists = this.teachers.slice(this.pageSize * (pageNumber - 1), this.pageSize * (pageNumber))
     this.displayLists = this.teachers.slice(0, this.pageSize)
-    console.log(this.displayLists)
   },
   methods: {
     showItem (teacher) {
