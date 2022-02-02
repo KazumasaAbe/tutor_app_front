@@ -146,7 +146,7 @@ export default {
         {
           icon: 'mdi-account-details',
           title: '先生一覧',
-          to: '/teacher_index',
+          to: '/admin_teacher_index',
           action: false
         },
         {
