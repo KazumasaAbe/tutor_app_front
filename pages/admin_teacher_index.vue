@@ -89,9 +89,11 @@
                     >
                       <v-list-item-content>
                         <v-list-item-subtitle>担当教科</v-list-item-subtitle>
-                        <v-text-field
+                        <v-select
                           v-model="showTeacher.subject"
-                          class="text-h5 pt-1 pl-4"
+                          :items="subjects"
+                          multiple
+                          class="text-h6 pt-1 pl-4"
                         />
                       </v-list-item-content>
                     </v-list-item>
@@ -182,7 +184,7 @@
 export default {
   async asyncData ({ $axios }) {
     let teachers = []
-    await $axios.$get('/api/v1/teachers')
+    await $axios.$get('/api/v1/teachers.json')
       .then(res => (teachers = res))
     return { teachers }
   },
@@ -212,11 +214,9 @@ export default {
       email: '',
       teacher_icon: '',
       introduction: '',
-      subjects: {
-        id: [],
-        subject: []
-      }
-    }
+      subject: []
+    },
+    subjects: ['国語', '算数', '理科', '社会', '英語']
   }),
   methods: {
     showItem (item) {
@@ -281,6 +281,7 @@ export default {
           )
           this.$router.go('/admin_teacher_index')
         })
+      console.log(this.showTeacher.subject)
     }
   }
 }
