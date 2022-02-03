@@ -84,6 +84,12 @@ export default {
           title: 'ログイン',
           to: '/login/student_login',
           action: false
+        },
+        {
+          icon: '',
+          title: 'テスト',
+          to: '/test',
+          action: false
         }
       ],
       student_items: [
