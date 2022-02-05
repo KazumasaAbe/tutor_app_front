@@ -214,13 +214,14 @@ export default {
       email: '',
       teacher_icon: '',
       introduction: '',
-      subject: []
+      subject: ''
     },
     subjects: ['国語', '算数', '理科', '社会', '英語']
   }),
   methods: {
     showItem (item) {
       this.showTeacher = Object.assign({}, item)
+      console.log(this.showTeacher)
       this.dialog = true
     },
     setImage () {
@@ -281,7 +282,6 @@ export default {
           )
           this.$router.go('/admin_teacher_index')
         })
-      console.log(this.showTeacher.subject)
     }
   }
 }
