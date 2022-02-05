@@ -1,16 +1,4 @@
 <template>
-  <!-- <v-row justify="center" align="center"> -->
-  <!-- <v-col cols="12" sm="8" md="6">
-      <v-card>
-        <v-card-title class="headline">
-          お知らせ一覧
-        </v-card-title>
-        <v-card-actions>
-          <v-spacer />
-        </v-card-actions>
-      </v-card>
-    </v-col> -->
-  <!-- </v-row> -->
   <v-app>
     <h2 style="color:#9A9A9A;">
       お知らせ一覧
@@ -227,10 +215,11 @@ export default {
         align: 'start',
         value: 'created_at'
       },
-      { text: 'id', value: 'id' },
+      // { text: 'id', value: 'id' },
       { text: 'title', value: 'title' },
       { text: '編集/削除', value: 'actions', sortable: false }
     ],
+    notices: [],
     notice: {
       id: '',
       title: '',
@@ -269,7 +258,16 @@ export default {
     this.loadItems()
   },
 
+  created () {
+    this.initialize()
+  },
+
   methods: {
+    initialize () {
+      this.notices = []
+      this.$axios.$get('/api/v1/notices')
+        .then(res => (this.notices = res))
+    },
     loadItems () {
       this.notices = []
       this.$axios.$get('/api/v1/notices')
@@ -306,6 +304,14 @@ export default {
       const url = `/api/v1/notices/${this.notice.id}`
       this.$axios.$delete(url)
       this.notices.splice(this.editedIndex, 1)
+      this.$store.dispatch(
+        'flashMessage/showMessage',
+        {
+          message: '削除しました',
+          type: 'danger',
+          status: true
+        }
+      )
       this.closeDelete()
     },
 
@@ -330,9 +336,26 @@ export default {
         const url = `/api/v1/notices/${this.notice.id}`
         this.$axios.$patch(url, this.notice)
         Object.assign(this.notices[this.editedIndex], this.notice)
+        this.$store.dispatch(
+          'flashMessage/showMessage',
+          {
+            message: '編集しました',
+            type: 'success',
+            status: true
+          }
+        )
       } else {
         this.$axios.$post('/api/v1/notices', this.notice)
           .then(res => this.notices.push(res))
+        // this.notices.push(this.notice)
+        this.$store.dispatch(
+          'flashMessage/showMessage',
+          {
+            message: '新規登録しました',
+            type: 'success',
+            status: true
+          }
+        )
         this.loadItems()
       }
       this.close()
