@@ -63,7 +63,7 @@
                 <v-list-item-title
                   class="text-h5 pt-1 pl-4"
                 >
-                  {{ showTeacher.subject.join(',') }}
+                  {{ showTeacher.subjects[0].subject.join(',') }}
                 </v-list-item-title>
                 <v-divider />
               </v-list-item-content>
@@ -114,13 +114,13 @@ import goTo from 'vuetify/es5/services/goto'
 export default {
   async asyncData ({ $axios }) {
     let teachers = []
-    await $axios.$get('/api/v1/teachers.json')
+    await $axios.$get('/api/v1/teachers')
       .then(res => (teachers = res))
     return { teachers }
   },
   data () {
     return {
-      requestUrl: '/api/v1/teachers.json',
+      requestUrl: '/api/v1/teachers',
       page: 1,
       length: 0,
       displayLists: [],
@@ -130,7 +130,9 @@ export default {
         name: '',
         teacher_icon: '',
         introduction: '',
-        subject: []
+        subjects: [
+          { subject: [] }
+        ]
       }
     }
   },

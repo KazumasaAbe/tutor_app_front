@@ -332,7 +332,7 @@ export default {
   },
   mounted () {
     this.$axios
-      .get('/api/v1/teachers.json')
+      .get('/api/v1/teachers')
       .then((response) => {
         this.allTeachers = response.data
       })
