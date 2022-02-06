@@ -1,15 +1,29 @@
 <template>
-  <v-row justify="center" align="center">
-    <v-col cols="12" sm="8" md="6">
-      <v-title class="f-24">
-        お問合わせ一覧
-      </v-title>
-      <v-card>
-        <v-card-actions>
+  <v-app>
+    <h2 class="mt-2">
+      お問合わせ一覧
+    </h2>
+    <v-data-table
+      :headers="headers"
+      :items="inquiries"
+      :search="search"
+      :sort-by="['created_at']"
+      :sort-desc="[true]"
+      class="elevation-1 mt-3"
+      @click:row="showinquiry"
+    >
+      <template #[`item.read_at`]="{ item }">
+        <v-chip
+          :color="getColor(item.read_at)"
+        >
+          <span class="text-white">{{ item.read_at ? '既読' : '未読' }}</span>
+        </v-chip>
+      </template>
+      <template #top>
+        <v-toolbar
+          flat
+        >
           <v-spacer />
-        </v-card-actions>
-        <v-spacer />
-        <v-card-title class="headline">
           <v-text-field
             v-model="search"
             append-icon="mdi-magnify"
@@ -17,73 +31,50 @@
             single-line
             hide-details
           />
-        </v-card-title>
-        <v-data-table
-          :headers="headers"
-          :items="inquiries"
-          :search="search"
-          @click:row="showinquiry"
-        />
-      </v-card>
-    </v-col>
-    <v-dialog
-      v-model="dialog"
-      persistent
-      max-width="600px"
-    >
-      <template #[`item.read_at`]="{ item }">
-        {{ item.read_at > new Date() ? '既読' : '未読' }}
+          <v-dialog
+            v-model="dialog"
+            persistent
+            max-width="600px"
+          >
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">詳細</span>
+                <v-spacer />
+                <v-icon
+                  @click="dialog = false"
+                >
+                  mdi-close-box-outline
+                </v-icon>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12">
+                      <v-text-field
+                        :value="inquirydata.name"
+                        readonly
+                        prepend-icon="mdi-account-circle"
+                      />
+                      <v-text-field
+                        :value="inquirydata.email"
+                        readonly
+                        prepend-icon="mdi-email-outline"
+                      />
+                      <v-textarea
+                        :value="inquirydata.content"
+                        solo
+                        readonly
+                      />
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+            </v-card>
+          </v-dialog>
+        </v-toolbar>
       </template>
-      <!-- <template #activator="{ on, attrs }">
-        <v-btn
-          color="primary"
-          dark
-          v-bind="attrs"
-          v-on="on"
-        >
-          Open Dialog
-        </v-btn>
-      </template> -->
-      <v-card>
-        <v-card-title>
-          <span class="text-h5">詳細</span>
-        </v-card-title>
-        <v-btn
-          color="darken-1"
-          text
-          @click="dialog = false"
-        >
-          <span class="f-24">×</span>
-        </v-btn>
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <p>{{ inquirydata.read_at > new Date() ? '既読' : '未読' }}</p>
-              <v-col cols="12">
-                <v-text-field
-                  value="{inquirydata.name}"
-                />
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                  label="Password*"
-                  type="password"
-                  required
-                />
-              </v-col>
-              <v-col
-                cols="12"
-              >
-                <v-textarea
-                  label="お問い合わせ内容をご記入ください"
-                />
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-  </v-row>
+    </v-data-table>
+  </v-app>
 </template>
 
 <script>
@@ -93,30 +84,28 @@ export default {
       dialog: false,
       search: '',
       inquiries: [],
-      result: [],
       headers: [
         {
           text: 'お名前',
-          value: 'name'
+          value: 'name',
+          width: '30%'
         },
         {
           text: 'メールアドレス',
-          value: 'email'
+          value: 'email',
+          width: '55%'
         },
+        // {
+        //   text: '受信日時',
+        //   value: 'created_at'
+        // },
         {
           text: '既読',
-          value: 'read_at'
+          value: 'read_at',
+          width: '15%'
         }
       ],
-      inquirydata: [
-        {
-          name: '',
-          email: '',
-          content: '',
-          status: '',
-          read_at: ''
-        }
-      ]
+      inquirydata: {}
     }
   },
   computed: {
@@ -124,41 +113,38 @@ export default {
   mounted () {
     this.$axios
       .get('/api/v1/inquiries')
-      .then((res) => { this.inquiries = res.data })
+      .then((res) => {
+        this.inquiries = res.data
+      })
     console.log(this.inquiries) // eslint-disable-line no-console
   },
   methods: {
-    showinquiry (data) {
+    showinquiry (inquirydata) {
       this.dialog = true
-      this.inquirydata.id = data.id
-      this.inquirydata.name = data.name
-      this.inquirydata.email = data.email
-      this.inquirydata.content = data.content
-      this.inquirydata.read_at = data.read_at
-      data.read_at = new Date()
-      console.log(data) // eslint-disable-line no-console
+      this.inquirydata = inquirydata
+      this.inquirydata.read_at = new Date()
+      console.log(inquirydata) // eslint-disable-line no-console
+      const patchURL = `/api/v1/inquiries/${inquirydata.id}`
 
-      this.$axios.$patch('/api/v1/inquiries/:id', data)
-        .then((res) => { console.log(res.data) })
+      this.$axios.$patch(patchURL, this.inquirydata)
+        .then((res) => { console.log(res.data) }) // eslint-disable-line no-console
         .catch((e) => {
         })
     },
-    getColor (redtime) {
-      if (redtime === '既読') {
-        // this.status = '既読'
+    getColor (readtime) {
+      if (readtime) {
         return 'green'
-      } else if (redtime !== '既読') {
-        // this.status = '未読'
+      } else if (!readtime) {
         return 'red'
       }
     }
-    // fullDate () {
-    //   return new Date()
-    // }
   }
 }
 </script>
 <style>
+.text-white{
+  color: white;
+}
 .f-36{
   font-size:36px;
 }
