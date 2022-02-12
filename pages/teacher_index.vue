@@ -156,6 +156,7 @@ export default {
     showItem (teacher) {
       this.showTeacher = Object.assign({}, teacher)
       this.dialog = true
+      console.log(this.teachers)
     },
     setImage () {
       if (this.showTeacher.teacher_icon) {

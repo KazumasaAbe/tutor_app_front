@@ -371,21 +371,18 @@ export default {
         .then((response) => {
           this.status = response.data
         })
+      this.send_message.content = ''
     },
     // チャット内容の付属データをオブジェクトへ追加
     dataSet () {
       this.send_message.teacher_id = this.user.teacher_id
       this.send_message.student_id = this.user.id
       this.send_message.room_id = this.room[0].id
-      console.log(this.room[0].id)
     },
     // チャット画面をスクロールエンドに設定
     scrollEnd () {
       this.el = document.getElementById('container')
       this.el.scrollTo(0, this.el.scrollHeight)
-    },
-    test () {
-      console.log(this.teacher)
     }
   }
 }
