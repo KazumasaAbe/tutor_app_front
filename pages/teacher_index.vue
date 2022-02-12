@@ -63,7 +63,7 @@
                 <v-list-item-title
                   class="text-h5 pt-1 pl-4"
                 >
-                  {{ showTeacher.subject }}
+                  {{ showTeacher.subjects[0].subject.join(',') }}
                 </v-list-item-title>
                 <v-divider />
               </v-list-item-content>
@@ -130,10 +130,9 @@ export default {
         name: '',
         teacher_icon: '',
         introduction: '',
-        subjects: {
-          teacher_id: '',
-          subject: ''
-        }
+        subjects: [
+          { subject: [] }
+        ]
       }
     }
   },
