@@ -40,12 +40,58 @@
           </v-card-actions>
         </v-col>
       </v-row>
+      <v-row>
+        <v-col>
+          {{ teacher.name }}とのトールルーム
+          <v-card
+            id="container"
+            class="line-bc"
+            color="light-blue lighten-4"
+            max-height="300"
+          >
+            <span
+              v-for="(m, i) in messages"
+              :key="`m-${i}`"
+            >
+              <template v-if="m.speaker == 'teacher'">
+                <div class="student-comment">
+                  <p>{{ m.content }}</p>
+                </div>
+              </template>
+              <template v-else>
+                <div class="balloon">
+                  <div class="faceicon">
+                    <img src="/img/default_icon.png">
+                  </div>
+                  <div class="chatting">
+                    <div class="says">
+                      <p>{{ m.content }}</p>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </span>
+          </v-card>
+          <div class="chatfield">
+            <v-text-field
+              v-model="send_message.content"
+              :append-outer-icon="'mdi-send'"
+              clear-icon="mdi-close-circle"
+              clearable
+              label="メッセージ"
+              outlined
+              @click:append-outer="sendMessage"
+            />
+          </div>
+        </v-col>
+      </v-row>
     </v-container>
   </v-main>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import ActionCable from 'actioncable'
 import BarChart from '~/components/BarChart.vue'
 
 export default {
@@ -54,8 +100,10 @@ export default {
   },
   data () {
     return {
-      bar_data_collection: { datasets: [], options: {} },
-      line_data_collection: { datasets: [], options: {} },
+      bar_data_collection: { datasets: [] },
+      bar_options: {},
+      line_data_collection: { datasets: [] },
+      line_options: {},
       abilities: [],
       descending_abilities: [],
       ascending_abilities: [],
@@ -67,7 +115,19 @@ export default {
       arithmetic_scores: [],
       science_scores: [],
       english_scores: [],
-      society_scores: []
+      society_scores: [],
+      messages: [],
+      message: '',
+      room: {},
+      teacher: {},
+      send_message: {
+        speaker: 'teacher',
+        content: '',
+        room_name: '',
+        teacher_id: '',
+        student_id: '',
+        room_id: ''
+      }
     }
   },
   computed: {
@@ -78,6 +138,11 @@ export default {
   watch: {
     select_ability (val, old) {
       this.setAbility(val)
+    },
+    messages (val, old) {
+      this.$nextTick(function () {
+        this.scrollEnd()
+      })
     }
   },
   mounted () {
@@ -89,6 +154,37 @@ export default {
         this.selectAbility()
         this.lineLabelList()
         this.barFillData()
+      })
+    this.$axios
+      .get(`/api/v1/messages/${this.user.id}`)
+      .then((response) => {
+        this.messages = response.data
+      })
+    this.$axios
+      .get(`/api/v1/teachers/${this.user.teacher_id}`)
+      .then((response) => {
+        this.teacher = response.data
+      })
+  },
+  created () {
+    this.$axios
+      .get(`/api/v1/rooms/${this.user.id}`)
+      .then((response) => {
+        this.room = response.data
+        const cable = ActionCable.createConsumer('ws://localhost:3000/cable')
+        this.messageChannel = cable.subscriptions.create({ channel: 'ChatChannel', room: this.room[0].id }, {
+          received: (data) => {
+            this.messages.push({
+              speaker: data.speaker,
+              content: data.content,
+              room_name: data.room_name,
+              teacher_id: data.teacher_id,
+              student_id: data.student_id,
+              room_id: data.room_id
+            })
+          }
+        }
+        )
       })
   },
   methods: {
@@ -266,7 +362,117 @@ export default {
       this.line_label = this.abilities.map(abilitiy => abilitiy.implementation_month)
       this.line_label = this.line_label
         .sort((a, b) => new Date(a) - new Date(b))
+    },
+    // チャット内容をAPIへ送信
+    sendMessage () {
+      this.dataSet()
+      this.$axios
+        .post('/api/v1/messages', this.send_message)
+        .then((response) => {
+          this.status = response.data
+        })
+    },
+    // チャット内容の付属データをオブジェクトへ追加
+    dataSet () {
+      this.send_message.teacher_id = this.user.teacher_id
+      this.send_message.student_id = this.user.id
+      this.send_message.room_id = this.room[0].id
+      console.log(this.room[0].id)
+    },
+    // チャット画面をスクロールエンドに設定
+    scrollEnd () {
+      this.el = document.getElementById('container')
+      this.el.scrollTo(0, this.el.scrollHeight)
+    },
+    test () {
+      console.log(this.teacher)
     }
   }
 }
 </script>
+
+<style>
+  .mycomment {
+    margin: 10px 0;
+  }
+
+  .line-bc {
+    padding: 20px 10px;
+    margin: 15px auto;
+    text-align: right;
+    font-size: 14px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .student-comment {
+  margin: 10px 0;
+}
+.student-comment p {
+  display: inline-block;
+  position: relative;
+  margin: 0 10px 0 0;
+  padding: 8px;
+  max-width: 250px;
+  border-radius: 12px;
+  background: #30e852;
+  font-size: 15px;
+}
+
+.student-comment p:after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  right: -19px;
+  border: 8px solid transparent;
+  border-left: 18px solid #30e852;
+  -webkit-transform: rotate(-35deg);
+  transform: rotate(-35deg);
+}
+
+.balloon {
+  width: 100%;
+  margin: 10px 0;
+  overflow: hidden;
+}
+
+.balloon .faceicon {
+  float: left;
+  margin-right: -50px;
+  width: 40px;
+}
+
+.balloon .faceicon img{
+  width: 100%;
+  height: auto;
+  border-radius: 50%;
+}
+.balloon .chatting {
+  width: 100%;
+  text-align: left;
+}
+.says {
+  display: inline-block;
+  position: relative;
+  margin: 0 0 0 50px;
+  padding: 10px;
+  max-width: 250px;
+  border-radius: 12px;
+  background: #edf1ee;
+}
+
+.says:after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 3px;
+  left: -19px;
+  border: 8px solid transparent;
+  border-right: 18px solid #edf1ee;
+  -webkit-transform: rotate(35deg);
+  transform: rotate(35deg);
+}
+.says p {
+  margin: 0;
+  padding: 0;
+}
+</style>
