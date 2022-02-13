@@ -50,43 +50,205 @@
               <v-icon
                 x-large
                 color="black"
+                @click="createItem(item)"
               >
                 mdi-plus-box-outline
               </v-icon>
             </v-card-actions>
           </v-card-title>
-          <!-- <v-date-table
-            :headers="headers"
-            :items="desserts"
-            class="elevation-1"
-          > -->
-          <!-- <tr>
-            <th>
-              日付
-            </th>
-          </tr> -->
-          <!-- </v-date-table> -->
+          <v-dialog
+            v-model="dialog2"
+            max-width="600px"
+          >
+            <v-card>
+              <v-card-title>
+                <v-spacer />
+                <v-icon
+                  x-large
+                  color="black"
+                  @click="close"
+                >
+                  mdi-close-box-outline
+                </v-icon>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col
+                      cols="12"
+                      sm="6"
+                      md="4"
+                    >
+                      <v-menu
+                        ref="menu"
+                        v-model="menu"
+                        :close-on-content-click="false"
+                        :return-value.sync="pickerdate"
+                        transition="scale-transition"
+                        offset-y
+                        min-width="auto"
+                      >
+                        <template #activator="{ on, attrs }">
+                          <v-text-field
+                            v-model="abilitiy.implementation_month"
+                            label="日付"
+                            prepend-icon="mdi-calendar"
+                            readonly
+                            v-bind="attrs"
+                            v-on="on"
+                          />
+                        </template>
+                        <v-date-picker
+                          v-model="abilitiy.implementation_month"
+                          no-title
+                          scrollable
+                        >
+                          <v-spacer />
+                          <v-btn
+                            text
+                            color="primary"
+                            @click="menu = false"
+                          >
+                            キャンセル
+                          </v-btn>
+                          <v-btn
+                            text
+                            color="primary"
+                            @click="$refs.menu.save(pickerdate)"
+                          >
+                            OK
+                          </v-btn>
+                        </v-date-picker>
+                      </v-menu>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col
+                      cols="2"
+                      sm="2"
+                      md="2"
+                    >
+                      <v-text-field
+                        v-model="abilitiy.national_language"
+                        label="国語"
+                      />
+                    </v-col>
+                    <v-col
+                      cols="2"
+                      sm="2"
+                      md="2"
+                    >
+                      <v-text-field
+                        v-model="abilitiy.arithmetic"
+                        label="算数"
+                      />
+                    </v-col>
+                    <v-col
+                      cols="2"
+                      sm="2"
+                      md="2"
+                    >
+                      <v-text-field
+                        v-model="abilitiy.science"
+                        label="理科"
+                      />
+                    </v-col>
+                    <v-col
+                      cols="2"
+                      sm="2"
+                      md="2"
+                    >
+                      <v-text-field
+                        v-model="abilitiy.english"
+                        label="英語"
+                      />
+                    </v-col>
+                    <v-col
+                      cols="2"
+                      sm="2"
+                      md="2"
+                    >
+                      <v-text-field
+                        v-model="abilitiy.society"
+                        label="社会"
+                      />
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-dialog>
+                  <template #activator="{ on, attrs }">
+                    <v-btn
+                      color="primary"
+                      dark
+                      class="mb-2"
+                      v-bind="attrs"
+                      @click="save"
+                      v-on="on"
+                    >
+                      保存
+                    </v-btn>
+                  </template>
+                </v-dialog>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
           <v-data-table
             :headers="headers"
             :items="abilities"
             :page.sync="page"
             :items-per-page="itemsPerPage"
+            hide-default-header
             hide-default-footer
             :sort-by="['implementation_month']"
             :sort-desc="true"
-            class="elevation-1 teblestyle"
+            class="elevation-1"
             @page-count="pageCount = $event"
           >
-            <!-- <template #[`header,name`]="{ header }">
-              <tr class="header-th">
-                <th>
-                  {{ header.name }}
+            <template #[`header`]>
+              <tr>
+                <th
+                  class="header-th"
+                >
+                  日付
+                </th>
+                <th
+                  class="header-th"
+                >
+                  国語
+                </th>
+                <th
+                  class="header-th"
+                >
+                  算数
+                </th>
+                <th
+                  class="header-th"
+                >
+                  理科
+                </th>
+                <th
+                  class="header-th"
+                >
+                  英語
+                </th>
+                <th
+                  class="header-th"
+                >
+                  社会
+                </th>
+                <th
+                  class="header-th"
+                >
+                  編集/削除
                 </th>
               </tr>
-            </template> -->
+            </template>
             <template #[`item`]="{ item }">
               <tr>
-                <td>
+                <td class="items-td">
                   <span>
                     {{ dateFormat(item.implementation_month) }}
                   </span>
@@ -135,73 +297,170 @@
                 </td>
               </tr>
             </template>
-            <!-- <template #[`item.national_language`]="{ item }">
-              <th>
-                <span>
-                  {{ item.national_language }}点
-                </span>
-              </th>
-            </template> -->
-            <!-- <template #[`item.arithmetic`]="{ item }">
-              <span>
-                {{ item.arithmetic }}点
-              </span>
-            </template> -->
-            <!-- <template #[`item.science`]="{ item }">
-              <span>
-                {{ item.science }}点
-              </span>
-            </template> -->
-            <!-- <template #[`item.english`]="{ item }">
-              <span>
-                {{ item.english }}点
-              </span>
-            </template> -->
-            <!-- <template #[`item.society`]="{ item }">
-              <span>
-                {{ item.society }}点
-              </span>
-            </template> -->
-            <!-- <template #[`item.actions`]="{ item }">
-              <tr>
-                <td>
-                  <v-icon
-                    small
-                    class="mr-2"
-                    color="primary"
-                    @click="editItem(item)"
-                  >
-                    mdi-pencil
-                  </v-icon>
-                  <v-icon
-                    small
-                    color="red"
-                    @click="deleteItem(item)"
-                  >
-                    mdi-delete
-                  </v-icon>
-                </td>
-              </tr>
-            </template> -->
           </v-data-table>
+          <v-dialog
+            v-model="dialog"
+            max-width="600px"
+          >
+            <v-card>
+              <v-card-title>
+                <v-spacer />
+                <v-icon
+                  x-large
+                  color="black"
+                  @click="close"
+                >
+                  mdi-close-box-outline
+                </v-icon>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col
+                      cols="12"
+                      sm="6"
+                      md="4"
+                    >
+                      <v-menu
+                        ref="menu"
+                        v-model="menu2"
+                        :close-on-content-click="false"
+                        :return-value.sync="pickerdate"
+                        transition="scale-transition"
+                        offset-y
+                        min-width="auto"
+                      >
+                        <template #activator="{ on, attrs }">
+                          <v-text-field
+                            v-model="abilitiy.implementation_month"
+                            label="日付"
+                            prepend-icon="mdi-calendar"
+                            readonly
+                            v-bind="attrs"
+                            v-on="on"
+                          />
+                        </template>
+                        <v-date-picker
+                          v-model="abilitiy.implementation_month"
+                          no-title
+                          scrollable
+                        >
+                          <v-spacer />
+                          <v-btn
+                            text
+                            color="primary"
+                            @click="menu2 = false"
+                          >
+                            キャンセル
+                          </v-btn>
+                          <v-btn
+                            text
+                            color="primary"
+                            @click="$refs.menu.save(pickerdate)"
+                          >
+                            OK
+                          </v-btn>
+                        </v-date-picker>
+                      </v-menu>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col
+                      cols="2"
+                      sm="2"
+                      md="2"
+                    >
+                      <v-text-field
+                        v-model="abilitiy.national_language"
+                        label="国語"
+                      />
+                    </v-col>
+                    <v-col
+                      cols="2"
+                      sm="2"
+                      md="2"
+                    >
+                      <v-text-field
+                        v-model="abilitiy.arithmetic"
+                        label="算数"
+                      />
+                    </v-col>
+                    <v-col
+                      cols="2"
+                      sm="2"
+                      md="2"
+                    >
+                      <v-text-field
+                        v-model="abilitiy.science"
+                        label="理科"
+                      />
+                    </v-col>
+                    <v-col
+                      cols="2"
+                      sm="2"
+                      md="2"
+                    >
+                      <v-text-field
+                        v-model="abilitiy.english"
+                        label="英語"
+                      />
+                    </v-col>
+                    <v-col
+                      cols="2"
+                      sm="2"
+                      md="2"
+                    >
+                      <v-text-field
+                        v-model="abilitiy.society"
+                        label="社会"
+                      />
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-dialog>
+                  <template #activator="{ on, attrs }">
+                    <v-btn
+                      color="primary"
+                      dark
+                      class="mb-2"
+                      v-bind="attrs"
+                      @click="update"
+                      v-on="on"
+                    >
+                      保存
+                    </v-btn>
+                  </template>
+                </v-dialog>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+          <v-dialog v-model="dialogDelete" max-width="500px">
+            <v-card>
+              <v-card-title class="text-h5">
+                本当に削除しますか？
+              </v-card-title>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn color="blue darken-1" text @click="closeDelete">
+                  キャンセル
+                </v-btn>
+                <v-btn color="blue darken-1" text @click="deleteItemConfirm">
+                  削除
+                </v-btn>
+                <v-spacer />
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
           <v-pagination
             v-model="page"
             :length="pageCount"
           />
-          <!-- <v-table
-            v-for="(student, i) in displayLists"
-            :key="`student-${i}`"
-          > -->
-          <!-- <tr>
-            <th>
-            </th>
-          </tr> -->
-          <!-- </v-table> -->
         </v-col>
       </v-row>
     </v-container>
-    <p>{{ user }}</p>
-    <p>{{ abilities }}</p>
   </v-main>
 </template>
 
@@ -214,8 +473,13 @@ export default {
   },
   data () {
     return {
+      dialog: false,
+      dialog2: false,
+      dialogDelete: false,
       bar_data_collection: { datasets: [], options: {} },
+      bar_options: {},
       line_data_collection: { datasets: [], options: {} },
+      line_options: {},
       abilities: [],
       descending_abilities: [],
       ascending_abilities: [],
@@ -233,12 +497,8 @@ export default {
           text: '日付',
           align: 'start',
           value: 'implementation_month'
-          // sort: 'sortAbilities()'
-          // sort: sort((a, b) => new Date(a) - new Date(b)
-          // sort: (a, b) => new Date(b.implementation_month) - new Date(a.implementation_month)
-          // sortBy: 'this.descending_abilities'
-          // sortBy: 'implementation_month'
         },
+        { text: 'id', sortable: false, value: 'id' },
         { text: '国語', sortable: false, value: 'national_language', borderLeft: '1px solid grey' },
         { text: '算数', sortable: false, value: 'arithmetic', class: 'header-th' },
         { text: '理科', sortable: false, value: 'science' },
@@ -248,7 +508,11 @@ export default {
       ],
       page: 1,
       pageCount: 0,
-      itemsPerPage: 3
+      itemsPerPage: 3,
+      defaultItem: {},
+      pickerdate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+      menu: false,
+      menu2: false
     }
   },
   computed: {
@@ -257,13 +521,19 @@ export default {
     }),
     dateFormat () {
       return (date) => {
-        return this.$dayjs(date).format('YYYY年MM月')
+        return this.$dayjs(date).format('YYYY年MM月DD日')
       }
     }
   },
   watch: {
     select_ability (val, old) {
       this.setAbility(val)
+    },
+    dialog (val) {
+      val || this.close()
+    },
+    dialogDelete (val) {
+      val || this.closeDelete()
     }
   },
   mounted () {
@@ -292,6 +562,9 @@ export default {
               'rgba(153, 102, 255, 0.2)'
             ],
             data: [
+              // this.abilitiy[0].national_language,
+              // console.log(this.national_language_scores),
+              // this.national_language_scores,
               this.getNationalLanguageScore(),
               this.getArithmeticScore(),
               this.getScienceScore(),
@@ -453,6 +726,79 @@ export default {
       this.line_label = this.abilities.map(abilitiy => abilitiy.implementation_month)
       this.line_label = this.line_label
         .sort((a, b) => new Date(a) - new Date(b))
+    },
+    editItem (item) {
+      this.abilitiy = Object.assign({}, item)
+      this.dialog = true
+    },
+    createItem (item) {
+      this.abilitiy = Object.assign({}, item)
+      this.abilitiy.student_id = this.user.id
+      this.dialog2 = true
+    },
+
+    deleteItem (item) {
+      this.abilitiy = Object.assign({}, item)
+      this.dialogDelete = true
+    },
+
+    deleteItemConfirm () {
+      const url = `/api/v1/academic_abilities/${this.abilitiy.id}`
+      this.$axios.$delete(url)
+      this.$store.dispatch(
+        'flashMessage/showMessage',
+        {
+          message: '削除しました',
+          type: 'danger',
+          status: true
+        }
+      )
+      this.closeDelete()
+      this.$router.go('/student/student_detail')
+    },
+
+    close () {
+      this.dialog = false
+      this.dialog2 = false
+      this.$nextTick(() => {
+        this.abilitiy = Object.assign({}, this.defaultItem)
+      })
+    },
+
+    closeDelete () {
+      this.dialogDelete = false
+      this.$nextTick(() => {
+        this.abilitiy = Object.assign({}, this.defaultItem)
+      })
+    },
+
+    update () {
+      const url = `/api/v1/academic_abilities/${this.abilitiy.id}`
+      this.$axios.$patch(url, this.abilitiy)
+      Object.assign(this.abilities, this.abilitiy)
+      this.$store.dispatch(
+        'flashMessage/showMessage',
+        {
+          message: '編集しました',
+          type: 'info',
+          status: true
+        }
+      )
+      this.$router.go('/student/student_detail')
+    },
+    save () {
+      this.$axios.$post('/api/v1/academic_abilities', this.abilitiy)
+        .then(res => this.abilities.push(res))
+      this.$store.dispatch(
+        'flashMessage/showMessage',
+        {
+          message: '新規登録しました',
+          type: 'success',
+          status: true
+        }
+      )
+      this.close()
+      this.$router.go('/student/student_detail')
     }
   }
 }
@@ -463,19 +809,11 @@ export default {
   font-weight: bolder;
   color: #6f6f6f;
 }
-/* 枠線 */
-.teblestyle {
+.header-th {
+  height: 50px;
   border: 1px solid #6f6f6f;
 }
-
-.header-th {
-  border-left: 5px solid grey;
-}
-/* 縦線 */
 .items-td {
-  border-left: 1px solid grey;
-}
-.v-data-table-header {
-  background-color: grey;
+  border: 1px solid #6f6f6f;
 }
 </style>
