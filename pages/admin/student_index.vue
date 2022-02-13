@@ -196,8 +196,10 @@
                           担当の先生
                         </v-list-item-subtitle>
                         <v-select
-                          v-model="showStudent.teacher_name"
-                          :items="nameTeachers"
+                          v-model="showStudent.teacher_id"
+                          item-text="name"
+                          item-value="id"
+                          :items="allTeachers"
                           class="text-h6 pt-1 ml-3"
                         />
                       </v-list-item-content>
@@ -317,10 +319,10 @@ export default {
         teacher_icon: ''
       }
     },
-    nameTeachers: [],
     addressData1: '',
     addressData2: '',
-    addressData3: ''
+    addressData3: '',
+    allTeachers: []
   }),
 
   watch: {
@@ -328,11 +330,16 @@ export default {
       val && setTimeout(() => (this.activePicker = 'YEAR'))
     }
   },
+  mounted () {
+    this.$axios
+      .get('/api/v1/teachers')
+      .then((response) => {
+        this.allTeachers = response.data
+      })
+  },
   methods: {
     showItem (item) {
       this.showStudent = Object.assign({}, item)
-      this.nameTeachers = this.showStudent.teacher_name
-      console.log(this.nameTeachers)
       this.dialog = true
     },
     setImage () {
@@ -406,6 +413,13 @@ export default {
         this.addressData3 = res.data.results[0].address3
         this.showStudent.address = this.addressData1 + this.addressData2 + this.addressData3
       })
+    },
+    selectTeachers () {
+      const axios = require('axios')
+      let nameTeachers = []
+      axios.get('/api/v1/students')
+        .then(res => (nameTeachers = res))
+      return { nameTeachers }
     }
   }
 }

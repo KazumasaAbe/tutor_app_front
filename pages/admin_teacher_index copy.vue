@@ -90,8 +90,8 @@
                       <v-list-item-content>
                         <v-list-item-subtitle>担当教科</v-list-item-subtitle>
                         <v-select
-                          v-model="showTeacher.subjects[0].subject"
-                          :items="selectSubjects"
+                          v-model="showTeacher.subject"
+                          :items="subjects"
                           multiple
                           class="text-h6 pt-1 pl-4"
                         />
@@ -184,7 +184,7 @@
 export default {
   async asyncData ({ $axios }) {
     let teachers = []
-    await $axios.$get('/api/v1/teachers')
+    await $axios.$get('/api/v1/teachers.json')
       .then(res => (teachers = res))
     return { teachers }
   },
@@ -214,15 +214,14 @@ export default {
       email: '',
       teacher_icon: '',
       introduction: '',
-      subjects: [{
-        subject: []
-      }]
+      subject: ''
     },
-    selectSubjects: ['国語', '算数', '理科', '社会', '英語']
+    subjects: ['国語', '算数', '理科', '社会', '英語']
   }),
   methods: {
     showItem (item) {
       this.showTeacher = Object.assign({}, item)
+      console.log(this.showTeacher)
       this.dialog = true
     },
     setImage () {
