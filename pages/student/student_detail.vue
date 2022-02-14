@@ -476,9 +476,9 @@ export default {
       dialog: false,
       dialog2: false,
       dialogDelete: false,
-      bar_data_collection: { datasets: [], options: {} },
+      bar_data_collection: { datasets: [] },
       bar_options: {},
-      line_data_collection: { datasets: [], options: {} },
+      line_data_collection: { datasets: [] },
       line_options: {},
       abilities: [],
       descending_abilities: [],
@@ -562,9 +562,6 @@ export default {
               'rgba(153, 102, 255, 0.2)'
             ],
             data: [
-              // this.abilitiy[0].national_language,
-              // console.log(this.national_language_scores),
-              // this.national_language_scores,
               this.getNationalLanguageScore(),
               this.getArithmeticScore(),
               this.getScienceScore(),
