@@ -547,7 +547,6 @@ export default {
         this.barFillData()
       })
   },
-
   methods: {
     barFillData () {
       this.bar_data_collection = {
@@ -733,12 +732,10 @@ export default {
       this.abilitiy.student_id = this.user.id
       this.dialog2 = true
     },
-
     deleteItem (item) {
       this.abilitiy = Object.assign({}, item)
       this.dialogDelete = true
     },
-
     deleteItemConfirm () {
       const url = `/api/v1/academic_abilities/${this.abilitiy.id}`
       this.$axios.$delete(url)
@@ -753,7 +750,6 @@ export default {
       this.closeDelete()
       this.$router.go('/student/student_detail')
     },
-
     close () {
       this.dialog = false
       this.dialog2 = false
@@ -761,14 +757,12 @@ export default {
         this.abilitiy = Object.assign({}, this.defaultItem)
       })
     },
-
     closeDelete () {
       this.dialogDelete = false
       this.$nextTick(() => {
         this.abilitiy = Object.assign({}, this.defaultItem)
       })
     },
-
     update () {
       const url = `/api/v1/academic_abilities/${this.abilitiy.id}`
       this.$axios.$patch(url, this.abilitiy)
