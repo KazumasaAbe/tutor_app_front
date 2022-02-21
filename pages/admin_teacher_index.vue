@@ -16,7 +16,7 @@
         >
           <v-toolbar-title>
             <v-dialog
-              v-model="dialog"
+              v-model="dialogNew"
               max-width="650px"
             >
               <template #activator="{ on, attrs }">
@@ -26,6 +26,7 @@
                   class="mb-2 mt-2"
                   v-bind="attrs"
                   v-on="on"
+                  @click="showAddTeacher"
                 >
                   先生追加
                 </v-btn>
@@ -41,7 +42,89 @@
             hide-details
           />
           <v-dialog
-            v-model="dialog"
+            v-model="dialogNew"
+            persistent
+            max-width="650px"
+          >
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">新規登録（先生）</span>
+                <v-spacer />
+                <v-icon
+                  class="mr-2"
+                  label="名前"
+                  @click="dialogNew = false"
+                >
+                  mdi-close-box-outline
+                </v-icon>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12">
+                      <p
+                        v-for="(error , i) in errors"
+                        :key="i"
+                        class="text-red"
+                      >
+                        ・{{ error }}
+                      </p>
+                      <p v-show="conformed_error">
+                        <span v-if="errorCheck" class="text-red">・{{ conformed_error_message }}</span>
+                      </p>
+                      <p v-show="result == 'success'">
+                        <span>登録完了しました</span>
+                      </p>
+                      <v-form autocomplete="off">
+                        <v-text-field
+                          v-model="addTeacher.name"
+                          prepend-icon="mdi-account-circle"
+                          autocomplete="off"
+                          label="名前"
+                        />
+                        <v-text-field
+                          v-model="addTeacher.email"
+                          prepend-icon="mdi-email-outline"
+                          autocomplete="off"
+                          label="メールアドレス"
+                        />
+                        <v-text-field
+                          v-model="addTeacher.password"
+                          :type="showPassword ? 'text' : 'password'"
+                          :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                          prepend-icon="mdi-lock"
+                          autocomplete="new-password"
+                          label="パスワード"
+                          @click:append="showPassword = !showPassword"
+                        />
+                        <v-text-field
+                          v-model="addTeacher.password_conformed"
+                          :type="showPassword ? 'text' : 'password'"
+                          :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                          autocomplete="new-password"
+                          prepend-icon="mdi-lock"
+                          label="パスワード確認"
+                          @click:append="showPassword = !showPassword"
+                        />
+                        <v-card-actions>
+                          <v-btn
+                            elevation="2"
+                            block
+                            color="primary"
+                            @click="postTeacher"
+                          >
+                            新規登録
+                          </v-btn>
+                        </v-card-actions>
+                      </v-form>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+            </v-card>
+          </v-dialog>
+          <v-dialog
+            v-model="dialogEdit"
             max-width="650px"
           >
             <v-card>
@@ -190,8 +273,14 @@ export default {
   },
   data: () => ({
     search: '',
-    dialog: false,
+    dialogNew: false,
+    dialogEdit: false,
     dialogDelete: false,
+    showPassword: false,
+    conformed_error: false,
+    conformed_error_message: 'パスワードが違います',
+    result: '',
+    errors: [],
     headers: [
       {
         text: '名前',
@@ -209,6 +298,12 @@ export default {
       { text: '', value: '', sortable: false },
       { text: '編集/削除', value: 'actions', sortable: false }
     ],
+    addTeacher: {
+      name: '',
+      email: '',
+      password: '',
+      password_conformed: ''
+    },
     showTeacher: {
       name: '',
       email: '',
@@ -218,12 +313,48 @@ export default {
         subject: []
       }]
     },
-    selectSubjects: ['国語', '算数', '理科', '社会', '英語']
+    selectSubjects: ['国語', '算数', '理科', '社会', '英語'],
+    labels: {
+      name: '名前',
+      email: 'メールアドレス',
+      password: 'パスワード'
+    }
   }),
   methods: {
+    postTeacher () {
+      this.conformed_error = this.errorCheck()
+      this.result = ''
+      this.errors.length = 0
+      if (this.conformed_error) {
+        this.conformed_error = true
+      } else {
+        this.errors.length = 0
+        this.$axios.$post('/api/v1/teacher', this.addTeacher)
+          .then((res) => {
+            this.result = res.status
+            this.errors.length = 0
+            this.addStudent.name = ''
+            this.addStudent.email = ''
+            this.addStudent.password = ''
+            this.addStudent.password_conformed = ''
+          })
+          .catch((e) => {
+            this.errors = e.response.data.errors.full_messages
+          })
+      }
+    },
+    showAddTeacher () {
+      this.dialogNew = true
+      this.result = ''
+      this.errors.length = 0
+      this.addTeacher.name = ''
+      this.addTeacher.email = ''
+      this.addTeacher.password = ''
+      this.addTeacher.password_conformed = ''
+    },
     showItem (item) {
       this.showTeacher = Object.assign({}, item)
-      this.dialog = true
+      this.dialogEdit = true
     },
     setImage () {
       if (this.showTeacher.teacher_icon) {
@@ -253,7 +384,7 @@ export default {
     },
 
     close () {
-      this.dialog = false
+      this.dialogEdit = false
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
@@ -283,7 +414,19 @@ export default {
           )
           this.$router.go('/admin_teacher_index')
         })
+    },
+    errorCheck () {
+      if (this.addTeacher.password !== this.addTeacher.password_conformed) {
+        return true
+      } else {
+        return false
+      }
     }
   }
 }
 </script>
+<style>
+.text-red {
+  color: red;
+}
+</style>
