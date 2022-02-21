@@ -75,6 +75,10 @@
                       <p v-show="result == 'success'">
                         <span>登録完了しました</span>
                       </p>
+                      <p v-show="result_makeroom">
+                        <span v-if="result_makeroom == 'ルームの作成に失敗しました'" class="text-red">{{ result_makeroom }}</span>
+                        <span v-else>{{ result_makeroom }}</span>
+                      </p>
                       <v-form autocomplete="off">
                         <v-text-field
                           v-model="addStudent.name"
@@ -89,7 +93,7 @@
                           label="メールアドレス"
                         />
                         <v-text-field
-                          v-model="addStudent.password_conformed"
+                          v-model="addStudent.password"
                           :type="showPassword ? 'text' : 'password'"
                           :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                           prepend-icon="mdi-lock"
@@ -98,7 +102,7 @@
                           @click:append="showPassword = !showPassword"
                         />
                         <v-text-field
-                          v-model="addStudent.password"
+                          v-model="addStudent.password_conformed"
                           :type="showPassword ? 'text' : 'password'"
                           :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                           autocomplete="new-password"
@@ -106,6 +110,21 @@
                           label="パスワード確認"
                           @click:append="showPassword = !showPassword"
                         />
+                        <v-col
+                          class="d-flex"
+                          cols="12"
+                          sm="6"
+                        >
+                          <v-select
+                            v-model="addStudent.selectTeacherValue"
+                            :items="selectTeacher"
+                            label="担当の先生"
+                            prepend-icon="mdi-account-circle"
+                            dense
+                            outlined
+                            @change="fetchValue($event)"
+                          />
+                        </v-col>
                         <v-card-actions>
                           <v-btn
                             elevation="2"
@@ -375,6 +394,7 @@ export default {
     conformed_error: false,
     conformed_error_message: 'パスワードが違います',
     result: '',
+    result_makeroom: '',
     errors: [],
     headers: [
       {
@@ -397,7 +417,13 @@ export default {
       name: '',
       email: '',
       password: '',
-      password_conformed: ''
+      password_conformed: '',
+      selectTeacherValue: '',
+      teacher_id: ''
+    },
+    addRoom: {
+      student_id: '',
+      teacher_id: ''
     },
     showStudent: {
       name: '',
@@ -412,6 +438,8 @@ export default {
         teacher_icon: ''
       }
     },
+    selectTeacher: [],
+    teachersList: [],
     labels: {
       name: '名前',
       email: 'メールアドレス',
@@ -428,38 +456,82 @@ export default {
       val && setTimeout(() => (this.activePicker = 'YEAR'))
     }
   },
+  mounted () {
+    this.$axios
+      .get('/api/v1/teachers')
+      .then((res) => {
+        res.data.forEach((v, i) => {
+          if (v.name !== null) {
+            this.selectTeacher.push(v.name)
+            this.teachersList.push(v)
+          }
+        })
+      })
+  },
   methods: {
     postStudent () {
       this.conformed_error = this.errorCheck()
       this.result = ''
+      this.result_makeroom = ''
       this.errors.length = 0
       if (this.conformed_error) {
         this.conformed_error = true
       } else {
         this.errors.length = 0
-        this.$axios.$post('/api/v1/student', this.addStudent)
-          .then((res) => {
-            this.result = res.status
-            this.errors.length = 0
-          })
-          .catch((e) => {
-            this.errors = e.response.data.errors.full_messages
-          })
+        for (let i = this.teachersList.length - 1; i >= 0; i--) {
+          if (this.teachersList[i].name === this.addStudent.selectTeacherValue) {
+            this.addStudent.teacher_id = this.teachersList[i].id
+          }
+        }
+        this.regStudent()
+      }
+    },
+    async regStudent () {
+      try {
+        const res = await this.$axios.$post('/api/v1/student', this.addStudent)
+        this.result = res.status
+        this.errors.length = 0
+        this.addRoom.student_id = res.data.id
+        this.addRoom.teacher_id = res.data.teacher_id
+        this.regRoom()
+        this.errors.length = 0
+        this.addStudent.name = ''
+        this.addStudent.email = ''
+        this.addStudent.password = ''
+        this.addStudent.password_conformed = ''
+        this.addStudent.selectTeacherValue = ''
+      } catch (e) {
+        this.errors = e.response.data.errors.full_messages
+      }
+    },
+    async regRoom () {
+      try {
+        if (this.addRoom.teacher_id !== null && this.addRoom.student_id !== null) {
+          const res = await this.$axios.$post('/api/v1/rooms', this.addRoom)
+          this.result_makeroom = res
+          console.log(res)
+        }
+      } catch (e) {
+        console.log(e.response)
       }
     },
     showAddStudent () {
       this.dialogNew = true
       this.result = ''
+      this.result_makeroom = ''
       this.errors.length = 0
       this.addStudent.name = ''
       this.addStudent.email = ''
       this.addStudent.password = ''
       this.addStudent.password_conformed = ''
+      this.addStudent.selectTeacherValue = ''
+    },
+    fetchValue ($event) {
+      this.addStudent.selectTeacherValue = $event
     },
     showItem (item) {
       this.showStudent = Object.assign({}, item)
       this.nameTeachers = this.showStudent.teacher_name
-      console.log(this.nameTeachers)
       this.dialogEdit = true
     },
     setImage () {
@@ -535,7 +607,7 @@ export default {
       })
     },
     errorCheck () {
-      if (this.addTeacher.password !== this.addTeacher.password_conformed) {
+      if (this.addStudent.password !== this.addStudent.password_conformed) {
         return true
       } else {
         return false

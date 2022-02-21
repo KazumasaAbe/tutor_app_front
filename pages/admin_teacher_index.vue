@@ -89,7 +89,7 @@
                           label="メールアドレス"
                         />
                         <v-text-field
-                          v-model="addTeacher.password_conformed"
+                          v-model="addTeacher.password"
                           :type="showPassword ? 'text' : 'password'"
                           :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                           prepend-icon="mdi-lock"
@@ -98,7 +98,7 @@
                           @click:append="showPassword = !showPassword"
                         />
                         <v-text-field
-                          v-model="addTeacher.password"
+                          v-model="addTeacher.password_conformed"
                           :type="showPassword ? 'text' : 'password'"
                           :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                           autocomplete="new-password"
@@ -331,6 +331,10 @@ export default {
           .then((res) => {
             this.result = res.status
             this.errors.length = 0
+            this.addStudent.name = ''
+            this.addStudent.email = ''
+            this.addStudent.password = ''
+            this.addStudent.password_conformed = ''
           })
           .catch((e) => {
             this.errors = e.response.data.errors.full_messages
