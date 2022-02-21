@@ -331,10 +331,10 @@ export default {
           .then((res) => {
             this.result = res.status
             this.errors.length = 0
-            this.addStudent.name = ''
-            this.addStudent.email = ''
-            this.addStudent.password = ''
-            this.addStudent.password_conformed = ''
+            this.addTeacher.name = ''
+            this.addTeacher.email = ''
+            this.addTeacher.password = ''
+            this.addTeacher.password_conformed = ''
           })
           .catch((e) => {
             this.errors = e.response.data.errors.full_messages
