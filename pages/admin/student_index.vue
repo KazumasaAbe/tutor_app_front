@@ -356,21 +356,41 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <template #[`item.actions`]="{ item }">
-        <v-icon
-          class="mr-1"
-          color="blue"
-          @click="showItem(item)"
-        >
-          mdi-pencil
-        </v-icon>
-        <v-icon
-          class=""
-          color="red"
-          @click="deleteItem(item)"
-        >
-          mdi-delete
-        </v-icon>
+      <template #[`item`]="{ item }">
+        <tr>
+          <td>
+            <v-btn
+              text
+              @click="linkmove (item)"
+            >
+              {{ item.name }}くん
+            </v-btn>
+          </td>
+          <td />
+          <td />
+          <td />
+          <td />
+          <td />
+          <td />
+          <td />
+          <td />
+          <td>
+            <v-icon
+              class="mr-1"
+              color="blue"
+              @click="showItem(item)"
+            >
+              mdi-pencil
+            </v-icon>
+            <v-icon
+              class=""
+              color="red"
+              @click="deleteItem(item)"
+            >
+              mdi-delete
+            </v-icon>
+          </td>
+        </tr>
       </template>
     </v-data-table>
   </v-app>
@@ -622,7 +642,10 @@ export default {
         return true
       } else {
         return false
-      }
+      },
+    linkmove (item) {
+      this.showStudent = Object.assign({}, item)
+      this.$router.push({ path: '/student/student_detail/', query: { id: this.showStudent.id, name: this.showStudent.name } })
     }
   }
 }
