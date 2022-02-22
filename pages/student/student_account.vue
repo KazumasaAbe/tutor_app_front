@@ -147,7 +147,7 @@ export default {
   },
   mounted () {
     this.$axios
-      .get('/api/v1/academic_abilities.json')
+      .get(`/api/v1/academic_abilities/${this.user.id}`)
       .then((response) => {
         this.abilities = response.data
         this.sortAbilities()
@@ -189,127 +189,131 @@ export default {
   },
   methods: {
     barFillData () {
-      this.bar_data_collection = {
-        labels: ['国語', '算数', '理科', '英語', '社会'],
-        datasets: [
-          {
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-              'rgba(75, 192, 192, 0.2)',
-              'rgba(153, 102, 255, 0.2)'
-            ],
-            data: [
-              this.getNationalLanguageScore(),
-              this.getArithmeticScore(),
-              this.getScienceScore(),
-              this.getEnglishScore(),
-              this.getSocietyScore()]
-          }
-        ]
-      }
-      this.bar_options = {
-        title: {
-          display: true,
-          fontSize: 18,
-          text: '学力確認テスト'
-        },
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-          position: 'top',
-          display: false
-        },
-        layout: {
-          padding: 0
-        },
-        scales: {
-          yAxes: [
+      this.$nextTick(() => {
+        this.bar_data_collection = {
+          labels: ['国語', '算数', '理科', '英語', '社会'],
+          datasets: [
             {
-              ticks: {
-                beginAtZero: true,
-                min: 0,
-                max: 100
-              }
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)'
+              ],
+              data: [
+                this.getNationalLanguageScore(),
+                this.getArithmeticScore(),
+                this.getScienceScore(),
+                this.getEnglishScore(),
+                this.getSocietyScore()]
             }
           ]
         }
-      }
+        this.bar_options = {
+          title: {
+            display: true,
+            fontSize: 18,
+            text: '学力確認テスト'
+          },
+          responsive: true,
+          maintainAspectRatio: false,
+          legend: {
+            position: 'top',
+            display: false
+          },
+          layout: {
+            padding: 0
+          },
+          scales: {
+            yAxes: [
+              {
+                ticks: {
+                  beginAtZero: true,
+                  min: 0,
+                  max: 100
+                }
+              }
+            ]
+          }
+        }
+      })
     },
     lineFillData () {
-      this.line_data_collection = {
-        labels: this.line_label,
-        datasets: [
-          {
-            fill: false,
-            label: '国語',
-            borderColor: [
-              'rgba(255, 99, 132, 0.2)'
-            ],
-            data: this.national_language_scores
-          },
-          {
-            fill: false,
-            label: '算数',
-            borderColor: [
-              'rgba(54, 162, 235, 0.2)'
-            ],
-            data: this.arithmetic_scores
-          },
-          {
-            fill: false,
-            label: '理科',
-            borderColor: [
-              'rgba(255, 206, 86, 0.2)'
-            ],
-            data: this.science_scores
-          },
-          {
-            fill: false,
-            label: '社会',
-            borderColor: [
-              'rgba(75, 192, 192, 0.2)'
-            ],
-            data: this.english_scores
-          },
-          {
-            fill: false,
-            label: '英語',
-            borderColor: [
-              'rgba(153, 102, 255, 0.2)'
-            ],
-            data: this.society_scores
-          }
-        ]
-      }
-      this.line_options = {
-        title: {
-          display: true,
-          fontSize: 18,
-          text: '成長記録'
-        },
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-          position: 'top',
-          display: false
-        },
-        layout: {
-          padding: 0
-        },
-        scales: {
-          yAxes: [
+      this.$nextTick(() => {
+        this.line_data_collection = {
+          labels: this.line_label,
+          datasets: [
             {
-              ticks: {
-                beginAtZero: true,
-                min: 0,
-                max: 100
-              }
+              fill: false,
+              label: '国語',
+              borderColor: [
+                'rgba(255, 99, 132, 0.2)'
+              ],
+              data: this.national_language_scores
+            },
+            {
+              fill: false,
+              label: '算数',
+              borderColor: [
+                'rgba(54, 162, 235, 0.2)'
+              ],
+              data: this.arithmetic_scores
+            },
+            {
+              fill: false,
+              label: '理科',
+              borderColor: [
+                'rgba(255, 206, 86, 0.2)'
+              ],
+              data: this.science_scores
+            },
+            {
+              fill: false,
+              label: '社会',
+              borderColor: [
+                'rgba(75, 192, 192, 0.2)'
+              ],
+              data: this.english_scores
+            },
+            {
+              fill: false,
+              label: '英語',
+              borderColor: [
+                'rgba(153, 102, 255, 0.2)'
+              ],
+              data: this.society_scores
             }
           ]
         }
-      }
+        this.line_options = {
+          title: {
+            display: true,
+            fontSize: 18,
+            text: '成長記録'
+          },
+          responsive: true,
+          maintainAspectRatio: false,
+          legend: {
+            position: 'top',
+            display: false
+          },
+          layout: {
+            padding: 0
+          },
+          scales: {
+            yAxes: [
+              {
+                ticks: {
+                  beginAtZero: true,
+                  min: 0,
+                  max: 100
+                }
+              }
+            ]
+          }
+        }
+      })
     },
     getNationalLanguageScore () {
       return this.abilitiy[0].national_language
@@ -383,6 +387,14 @@ export default {
     scrollEnd () {
       this.el = document.getElementById('container')
       this.el.scrollTo(0, this.el.scrollHeight)
+    },
+    test () {
+      this.$router.push({
+        path: '/teacher/student_detail',
+        query: {
+          id: 1
+        }
+      })
     }
   }
 }
