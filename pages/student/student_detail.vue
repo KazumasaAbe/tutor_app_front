@@ -4,7 +4,7 @@
       <v-row justify="center" align="center">
         <v-col cols="12">
           <v-card-title class="headline">
-            {{ user.email }}さん
+            {{ $route.query.name }}さん
           </v-card-title>
         </v-col>
       </v-row>
@@ -50,7 +50,7 @@
               <v-icon
                 x-large
                 color="black"
-                @click="createItem(item)"
+                @click="createItem()"
               >
                 mdi-plus-box-outline
               </v-icon>
@@ -465,7 +465,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import BarChart from '~/components/BarChart.vue'
 export default {
   components: {
@@ -498,7 +497,6 @@ export default {
           align: 'start',
           value: 'implementation_month'
         },
-        { text: 'id', sortable: false, value: 'id' },
         { text: '国語', sortable: false, value: 'national_language', borderLeft: '1px solid grey' },
         { text: '算数', sortable: false, value: 'arithmetic', class: 'header-th' },
         { text: '理科', sortable: false, value: 'science' },
@@ -516,9 +514,6 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      user: 'user_information/getUser'
-    }),
     dateFormat () {
       return (date) => {
         return this.$dayjs(date).format('YYYY年MM月DD日')
@@ -547,7 +542,6 @@ export default {
         this.barFillData()
       })
   },
-
   methods: {
     barFillData () {
       this.bar_data_collection = {
@@ -728,17 +722,14 @@ export default {
       this.abilitiy = Object.assign({}, item)
       this.dialog = true
     },
-    createItem (item) {
-      this.abilitiy = Object.assign({}, item)
-      this.abilitiy.student_id = this.user.id
+    createItem () {
+      this.abilitiy.student_id = this.$route.query.id
       this.dialog2 = true
     },
-
     deleteItem (item) {
       this.abilitiy = Object.assign({}, item)
       this.dialogDelete = true
     },
-
     deleteItemConfirm () {
       const url = `/api/v1/academic_abilities/${this.abilitiy.id}`
       this.$axios.$delete(url)
@@ -753,7 +744,6 @@ export default {
       this.closeDelete()
       this.$router.go('/student/student_detail')
     },
-
     close () {
       this.dialog = false
       this.dialog2 = false
@@ -761,14 +751,12 @@ export default {
         this.abilitiy = Object.assign({}, this.defaultItem)
       })
     },
-
     closeDelete () {
       this.dialogDelete = false
       this.$nextTick(() => {
         this.abilitiy = Object.assign({}, this.defaultItem)
       })
     },
-
     update () {
       const url = `/api/v1/academic_abilities/${this.abilitiy.id}`
       this.$axios.$patch(url, this.abilitiy)
