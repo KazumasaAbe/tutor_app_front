@@ -21,6 +21,17 @@ export default {
       type: 'flashMessage/type',
       status: 'flashMessage/status'
     })
+  },
+  mounted () {
+    this.$store.dispatch(
+      'flashMessage/resetMessage',
+      {
+        message: '',
+        type: '',
+        status: false
+      },
+      { root: true }
+    )
   }
 }
 </script>

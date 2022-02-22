@@ -509,10 +509,42 @@ export default {
     changeFile (img) {
       if (img) {
         this.editStudent.student_icon = URL.createObjectURL(this.image)
-        console.log(1)
       } else {
         this.editStudent.student_icon = '/img/default_icon.png'
       }
+    },
+    studentInfoSave () {
+      this.$axios
+        .put('/api/v1/student', this.editStudent, {
+          headers: {
+            'access-token': localStorage.getItem('access-token'),
+            uid: localStorage.getItem('uid'),
+            client: localStorage.getItem('client')
+          }
+        })
+        .then((response) => {
+          this.account = Object.assign({}, this.editStudent)
+          this.$store.dispatch('user_information/setUser', this.account)
+          localStorage.setItem('access-token', response.headers['access-token'])
+          localStorage.setItem('client', response.headers.client)
+          localStorage.setItem('uid', response.headers.uid)
+          localStorage.setItem('token-type', response.headers['token-type'])
+          this.$store.dispatch(
+            'flashMessage/showMessage',
+            {
+              message: '更新しました',
+              type: 'success',
+              status: true
+            },
+            { root: true }
+          )
+          this.dialogCancel()
+        }
+        )
+        .catch((e) => {
+          console.log(e.response.data.errors.full_messages)
+          this.errors = e.response.data.errors.full_messages
+        })
     }
   }
 }

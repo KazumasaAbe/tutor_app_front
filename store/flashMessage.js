@@ -29,6 +29,11 @@ export const actions = {
     commit('setStatus', status)
     setTimeout(() => {
       commit('setStatus', !status)
-    }, 3000)
+    }, 1000)
+  },
+  resetMessage ({ commit }, { message, type, status }) {
+    commit('setMessage', message)
+    commit('setType', type)
+    commit('setStatus', status)
   }
 }
