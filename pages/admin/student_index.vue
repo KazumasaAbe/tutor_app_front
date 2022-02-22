@@ -642,7 +642,8 @@ export default {
         return true
       } else {
         return false
-      },
+      }
+    },
     linkmove (item) {
       this.showStudent = Object.assign({}, item)
       this.$router.push({ path: '/student/student_detail/', query: { id: this.showStudent.id, name: this.showStudent.name } })
