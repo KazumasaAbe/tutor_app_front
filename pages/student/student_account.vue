@@ -147,7 +147,7 @@ export default {
   },
   mounted () {
     this.$axios
-      .get('/api/v1/academic_abilities.json')
+      .get(`/api/v1/academic_abilities/${this.user.id}`)
       .then((response) => {
         this.abilities = response.data
         this.sortAbilities()
@@ -383,6 +383,14 @@ export default {
     scrollEnd () {
       this.el = document.getElementById('container')
       this.el.scrollTo(0, this.el.scrollHeight)
+    },
+    test () {
+      this.$router.push({
+        path: '/teacher/student_detail',
+        query: {
+          id: 1
+        }
+      })
     }
   }
 }
