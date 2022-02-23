@@ -171,7 +171,7 @@ export default {
       .get(`/api/v1/rooms/${this.user.id}`)
       .then((response) => {
         this.room = response.data
-        const cable = ActionCable.createConsumer('ws://tutorapp-rails.herokuapp.com/cable')
+        const cable = ActionCable.createConsumer('https://tutorapp-rails.herokuapp.com/cable')
         this.messageChannel = cable.subscriptions.create({ channel: 'ChatChannel', room: this.room[0].id }, {
           received: (data) => {
             this.messages.push({
