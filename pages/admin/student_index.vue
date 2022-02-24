@@ -338,6 +338,66 @@ export default {
       })
   },
   methods: {
+    postStudent () {
+      this.conformed_error = this.errorCheck()
+      this.result = ''
+      this.result_makeroom = ''
+      this.errors.length = 0
+      if (this.conformed_error) {
+        this.conformed_error = true
+      } else {
+        this.errors.length = 0
+        for (let i = this.teachersList.length - 1; i >= 0; i--) {
+          if (this.teachersList[i].name === this.addStudent.selectTeacherValue) {
+            this.addStudent.teacher_id = this.teachersList[i].id
+          }
+        }
+        this.regStudent()
+      }
+    },
+    async regStudent () {
+      try {
+        const res = await this.$axios.$post('/api/v1/student', this.addStudent)
+        this.result = res.status
+        this.errors.length = 0
+        this.addRoom.student_id = res.data.id
+        this.addRoom.teacher_id = res.data.teacher_id
+        this.regRoom()
+        this.errors.length = 0
+        this.addStudent.name = ''
+        this.addStudent.email = ''
+        this.addStudent.password = ''
+        this.addStudent.password_conformed = ''
+        this.addStudent.selectTeacherValue = ''
+      } catch (e) {
+        this.errors = e.response.data.errors.full_messages
+      }
+    },
+    async regRoom () {
+      try {
+        if (this.addRoom.teacher_id !== null && this.addRoom.student_id !== null) {
+          const res = await this.$axios.$post('/api/v1/rooms', this.addRoom)
+          this.result_makeroom = res
+          console.log(res)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    showAddStudent () {
+      this.dialogNew = true
+      this.result = ''
+      this.result_makeroom = ''
+      this.errors.length = 0
+      this.addStudent.name = ''
+      this.addStudent.email = ''
+      this.addStudent.password = ''
+      this.addStudent.password_conformed = ''
+      this.addStudent.selectTeacherValue = ''
+    },
+    fetchValue ($event) {
+      this.addStudent.selectTeacherValue = $event
+    },
     showItem (item) {
       this.showStudent = Object.assign({}, item)
       this.dialog = true
