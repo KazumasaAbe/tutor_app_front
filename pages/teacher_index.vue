@@ -155,7 +155,8 @@ export default {
     showItem (teacher) {
       this.showTeacher = Object.assign({}, teacher)
       this.dialog = true
-      console.log(this.teachers)
+      this.url = `${process.env.APIURL}`
+      console.log(this.url)
     },
     setImage () {
       if (this.showTeacher.teacher_icon) {
