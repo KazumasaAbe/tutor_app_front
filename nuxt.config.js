@@ -31,12 +31,6 @@ export default {
   css: [
   ],
 
-  watchers: {
-    webpack: {
-      poll: true
-    }
-  },
-
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     { src: '~/plugins/dayjs', ssr: false },
@@ -60,7 +54,11 @@ export default {
     '@nuxtjs/date-fns',
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
-    '@nuxtjs/auth'
+    '@nuxtjs/auth',
+    [
+      '@nuxtjs/dotenv',
+      { filename: process.env.NODE_ENV !== 'production' ? '/config/.env.dev' : '/config/.env.prod' }
+    ]
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
