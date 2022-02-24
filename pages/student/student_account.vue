@@ -170,22 +170,24 @@ export default {
     this.$axios
       .get(`/api/v1/rooms/${this.user.id}`)
       .then((response) => {
-        this.room = response.data
-        this.url = `${process.env.APIURL}`
-        const cable = ActionCable.createConsumer(this.url)
-        this.messageChannel = cable.subscriptions.create({ channel: 'ChatChannel', room: this.room[0].id }, {
-          received: (data) => {
-            this.messages.push({
-              speaker: data.speaker,
-              content: data.content,
-              room_name: data.room_name,
-              teacher_id: data.teacher_id,
-              student_id: data.student_id,
-              room_id: data.room_id
-            })
+        this.$nextTick(() => {
+          this.room = response.data
+          this.url = `${process.env.APIURL}`
+          const cable = ActionCable.createConsumer(this.url)
+          this.messageChannel = cable.subscriptions.create({ channel: 'ChatChannel', room: this.room[0].id }, {
+            received: (data) => {
+              this.messages.push({
+                speaker: data.message.speaker,
+                content: data.message.content,
+                room_name: data.message.room_name,
+                teacher_id: data.message.teacher_id,
+                student_id: data.message.student_id,
+                room_id: data.message.room_id
+              })
+            }
           }
-        }
-        )
+          )
+        })
       })
   },
   methods: {
@@ -371,6 +373,9 @@ export default {
     // チャット内容をAPIへ送信
     sendMessage () {
       this.dataSet()
+      this.messageChannel.perform('speak', {
+        message: this.send_message
+      })
       this.$axios
         .post('/api/v1/messages', this.send_message)
         .then((response) => {
