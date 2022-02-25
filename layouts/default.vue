@@ -63,6 +63,7 @@ export default {
   name: 'DefaultLayout',
   data () {
     return {
+      user_info: null,
       clipped: false,
       drawer: false,
       fixed: false,
@@ -186,6 +187,19 @@ export default {
     })
   },
 
+  // computed: {
+  //   userCheck () {
+  //     return this.$store.getters['user_information/getUser']
+  //   }
+  // },
+
+  // watch: {
+  //   userCheck (val, old) {
+  //     this.user_info = val
+  //     console.log(this.user_info)
+  //   }
+  // },
+
   methods: {
     logout () {
       this.url = this.setUrl()
@@ -223,6 +237,7 @@ export default {
     },
     setItems () {
       if (!this.user) {
+        console.log(this.user)
         return this.default_items
       } else if (this.user && !this.user.admin && !this.user.teacher) {
         return this.student_items
