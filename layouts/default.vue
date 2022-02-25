@@ -1,51 +1,51 @@
 <template>
   <v-app>
-    <v-navigation-drawer
-      v-model="drawer"
-      :mini-variant="miniVariant"
-      :clipped="clipped"
-      fixed
-      app
-      color="#FFCC66"
-    >
-      <v-list>
-        <v-list-item
-          v-for="(item, i) in setItems()"
-          :key="i"
-          :to="item.to"
-          router
-          exact
-          @click="itemActionClick(item.action)"
-        >
-          <v-list-item-action>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title v-text="item.title" />
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-    <v-app-bar
-      :clipped-left="clipped"
-      fixed
-      app
-      color="#FFCC99"
-    >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-toolbar-title
-        @click="$router.push('/')"
-        v-text="title"
-      />
-      <v-spacer />
-      <span v-if="user">
-        <v-icon>mdi-account-circle</v-icon>
-      </span>
-    </v-app-bar>
     <v-main>
+      <v-navigation-drawer
+        v-model="drawer"
+        :mini-variant="miniVariant"
+        :clipped="clipped"
+        fixed
+        app
+        color="#FFCC66"
+      >
+        <v-list>
+          <v-list-item
+            v-for="(item, i) in setItems()"
+            :key="i"
+            :to="item.to"
+            router
+            exact
+            @click="itemActionClick(item.action)"
+          >
+            <v-list-item-action>
+              <v-icon>{{ item.icon }}</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title v-text="item.title" />
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-navigation-drawer>
+      <v-app-bar
+        :clipped-left="clipped"
+        fixed
+        app
+        color="#FFCC99"
+      >
+        <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
+        <v-toolbar-title
+          @click="$router.push('/')"
+          v-text="title"
+        />
+        <v-spacer />
+        <span v-if="user">
+          <v-icon>mdi-account-circle</v-icon>
+        </span>
+      </v-app-bar>
       <v-container>
         <FlashMessage />
-        <!-- <Nuxt /> -->
+        <Nuxt />
       </v-container>
     </v-main>
     <v-footer
