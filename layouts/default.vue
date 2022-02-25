@@ -45,7 +45,7 @@
     <v-main>
       <v-container>
         <FlashMessage />
-        <Nuxt />
+        <!-- <Nuxt /> -->
       </v-container>
     </v-main>
     <v-footer
@@ -223,7 +223,7 @@ export default {
     },
     setItems () {
       console.log(this.user)
-      if (this.user == null) {
+      if (!this.user) {
         return this.default_items
       } else if (this.user && !this.user.admin && !this.user.teacher) {
         return this.student_items
