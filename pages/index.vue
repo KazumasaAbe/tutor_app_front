@@ -88,6 +88,8 @@
                       </h3>
                       <v-spacer />
                       <v-icon
+                        x-large
+                        color="black"
                         @click="close"
                       >
                         mdi-close-box-outline
@@ -103,10 +105,8 @@
                         />
                       </div>
                     </v-col>
-                    <v-card-text>
-                      <span style="font-size:25px;">
-                        {{ showNotice.text }}
-                      </span>
+                    <v-card-text class="shownotice-text">
+                      <span class="msg-wrapper">{{ showNotice.text }}</span>
                     </v-card-text>
                   </v-col>
                 </v-row>
@@ -169,7 +169,7 @@ export default {
       if (this.showNotice.notice_image) {
         return this.showNotice.notice_image
       } else {
-        return '/img/notice_img2.png'
+        return '/img/default_icon.png'
       }
     },
     close () {
@@ -214,6 +214,14 @@ th{
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.msg-wrapper{
+  white-space: pre-wrap;
+  font-size: 25px;
+}
+.shownotice-text{
+  border: solid 3px #9A9A9A;/*線*/
+  border-radius: 10px;/*角の丸み*/
 }
 </style>
 
