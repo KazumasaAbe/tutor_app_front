@@ -187,6 +187,11 @@ export default {
     })
   },
 
+  mounted () {
+    if (this.user === 'null') {
+      this.$store.commit('user_information/logout')
+    }
+  },
   // computed: {
   //   userCheck () {
   //     return this.$store.getters['user_information/getUser']
