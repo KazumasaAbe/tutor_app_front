@@ -173,7 +173,6 @@
       </template>
       <template #[`item.actions`]="{ item }">
         <v-icon
-          small
           class="mr-2"
           color="primary"
           @click="editItem(item)"
@@ -181,7 +180,6 @@
           mdi-pencil
         </v-icon>
         <v-icon
-          small
           color="red"
           @click="deleteItem(item)"
         >
