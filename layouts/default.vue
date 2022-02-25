@@ -38,7 +38,7 @@
         v-text="title"
       />
       <v-spacer />
-      <span v-if="$auth.loggedIn">
+      <span v-if="user">
         <v-icon>mdi-account-circle</v-icon>
       </span>
     </v-app-bar>
@@ -223,7 +223,7 @@ export default {
     },
     setItems () {
       console.log(this.user)
-      if (!this.user) {
+      if (this.user === null) {
         return this.default_items
       } else if (this.user && !this.user.admin && !this.user.teacher) {
         return this.student_items
