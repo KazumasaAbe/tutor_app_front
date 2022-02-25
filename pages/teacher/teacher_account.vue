@@ -127,7 +127,7 @@
       </v-card>
     </v-dialog>
     <div
-      class="text-center pt-8"
+      class="text-center pt-4 mb-2"
     >
       <v-pagination
         v-model="page"
@@ -135,12 +135,71 @@
         @input="pageChange"
       />
     </div>
+    <v-row>
+      <v-col cols="6">
+        <v-select
+          v-model="select_student"
+          item-text="name"
+          :items="students"
+          label="チャットする生徒を選択"
+          return-object
+        />
+      </v-col>
+    </v-row>
+    <v-row v-if="select_student">
+      <v-col>
+        {{ select_student.name }}とのトールルーム
+        <v-card
+          id="container"
+          class="line-bc"
+          color="light-blue lighten-4"
+          max-height="300"
+        >
+          <span v-if="messages">
+            <span
+              v-for="(m, i) in messages"
+              :key="`m-${i}`"
+            >
+              <template v-if="m.speaker == 'student'">
+                <div class="student-comment">
+                  <p>{{ m.content }}</p>
+                </div>
+              </template>
+              <template v-else>
+                <div class="balloon">
+                  <div class="faceicon">
+                    <img src="/img/default_icon.png">
+                  </div>
+                  <div class="chatting">
+                    <div class="says">
+                      <p>{{ m.content }}</p>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </span>
+          </span>
+        </v-card>
+        <div class="chatfield">
+          <v-text-field
+            v-model="send_message.content"
+            :append-outer-icon="'mdi-send'"
+            clear-icon="mdi-close-circle"
+            clearable
+            label="メッセージ"
+            outlined
+            @click:append-outer="sendMessage"
+          />
+        </div>
+      </v-col>
+    </v-row>
   </v-app>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import goTo from 'vuetify/es5/services/goto'
+import ActionCable from 'actioncable'
 export default {
   async asyncData ({ $axios }) {
     let students = []
@@ -149,6 +208,8 @@ export default {
     return { students }
   },
   data: () => ({
+    select_student: '',
+    messages: [],
     dialog: false,
     dialogDelete: false,
     students: [],
@@ -162,7 +223,15 @@ export default {
     page: 1,
     length: 0,
     displayLists: [],
-    pageSize: 4
+    pageSize: 4,
+    send_message: {
+      speaker: 'student',
+      content: '',
+      room_name: '',
+      teacher_id: '',
+      student_id: '',
+      room_id: ''
+    }
   }),
   computed: {
     ...mapGetters({
@@ -172,6 +241,14 @@ export default {
   watch: {
     dialog (val) {
       val || this.close()
+    },
+    select_student (val) {
+      this.setStudent(val)
+    },
+    messages (val) {
+      this.$nextTick(function () {
+        this.scrollEnd()
+      })
     }
   },
   mounted () {
@@ -215,7 +292,147 @@ export default {
     linkmove (showStudent) {
       this.showStudent = Object.assign({}, showStudent)
       this.$router.push({ path: '/student/student_detail/', query: { id: this.showStudent.id, name: this.showStudent.name } })
+    },
+    setStudent (student) {
+      this.$axios
+        .get(`/api/v1/messages/${student.id}`)
+        .then((response) => {
+          this.messages = response.data
+          this.$nextTick(() => {
+            this.scrollEnd()
+          })
+        })
+      this.$axios
+        .get(`/api/v1/rooms/${student.id}`)
+        .then((response) => {
+          this.$nextTick(() => {
+            this.room = response.data
+            this.url = `${process.env.APIURL}`
+            const cable = ActionCable.createConsumer(this.url)
+            this.messageChannel = cable.subscriptions.create({ channel: 'ChatChannel', room: this.room[0].id }, {
+              received: (data) => {
+                this.messages.push({
+                  speaker: data.message.speaker,
+                  content: data.message.content,
+                  room_name: data.message.room_name,
+                  teacher_id: data.message.teacher_id,
+                  student_id: data.message.student_id,
+                  room_id: data.message.room_id
+                })
+              }
+            }
+            )
+          })
+        })
+    },
+    scrollEnd () {
+      this.el = document.getElementById('container')
+      this.el.scrollTo(0, this.el.scrollHeight)
+    },
+    sendMessage () {
+      this.dataSet()
+      this.messageChannel.perform('speak', {
+        message: this.send_message
+      })
+      this.$axios
+        .post('/api/v1/messages', this.send_message)
+        .then((response) => {
+          this.status = response.data
+        })
+      this.send_message.content = ''
+    },
+    // チャット内容の付属データをオブジェクトへ追加
+    dataSet () {
+      this.send_message.student_id = this.select_student.id
+      this.send_message.teacher_id = this.select_student.teacher_id
+      this.send_message.room_id = this.room[0].id
     }
   }
 }
 </script>
+
+<style>
+  .mycomment {
+    margin: 10px 0;
+  }
+
+  .line-bc {
+    padding: 20px 10px;
+    margin: 15px auto;
+    text-align: right;
+    font-size: 14px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .student-comment {
+  margin: 10px 0;
+}
+.student-comment p {
+  display: inline-block;
+  position: relative;
+  margin: 0 10px 0 0;
+  padding: 8px;
+  max-width: 250px;
+  border-radius: 12px;
+  background: #30e852;
+  font-size: 15px;
+}
+
+.student-comment p:after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  right: -19px;
+  border: 8px solid transparent;
+  border-left: 18px solid #30e852;
+  -webkit-transform: rotate(-35deg);
+  transform: rotate(-35deg);
+}
+
+.balloon {
+  width: 100%;
+  margin: 10px 0;
+  overflow: hidden;
+}
+
+.balloon .faceicon {
+  float: left;
+  margin-right: -50px;
+  width: 40px;
+}
+
+.balloon .faceicon img{
+  width: 100%;
+  height: auto;
+  border-radius: 50%;
+}
+.balloon .chatting {
+  width: 100%;
+  text-align: left;
+}
+.says {
+  display: inline-block;
+  position: relative;
+  margin: 0 0 0 50px;
+  padding: 10px;
+  max-width: 250px;
+  border-radius: 12px;
+  background: #edf1ee;
+}
+
+.says:after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 3px;
+  left: -19px;
+  border: 8px solid transparent;
+  border-right: 18px solid #edf1ee;
+  -webkit-transform: rotate(35deg);
+  transform: rotate(35deg);
+}
+.says p {
+  margin: 0;
+  padding: 0;
+}
+</style>

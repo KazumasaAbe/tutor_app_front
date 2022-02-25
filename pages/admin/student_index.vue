@@ -16,7 +16,7 @@
         >
           <v-toolbar-title>
             <v-dialog
-              v-model="dialog"
+              v-model="dialogNew"
               max-width="600px"
             >
               <template #activator="{ on, attrs }">
@@ -26,6 +26,7 @@
                   class="mb-2 mt-2"
                   v-bind="attrs"
                   v-on="on"
+                  @click="showAddStudent"
                 >
                   生徒追加
                 </v-btn>
@@ -41,7 +42,108 @@
             hide-details
           />
           <v-dialog
-            v-model="dialog"
+            v-model="dialogNew"
+            persistent
+            max-width="650px"
+          >
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">新規登録（生徒）</span>
+                <v-spacer />
+                <v-icon
+                  class="mr-2"
+                  label="名前"
+                  @click="dialogNew = false"
+                >
+                  mdi-close-box-outline
+                </v-icon>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12">
+                      <p
+                        v-for="(error , i) in errors"
+                        :key="i"
+                        class="text-red"
+                      >
+                        ・{{ error }}
+                      </p>
+                      <p v-show="conformed_error">
+                        <span v-if="errorCheck" class="text-red">・{{ conformed_error_message }}</span>
+                      </p>
+                      <p v-show="result == 'success'">
+                        <span>登録完了しました</span>
+                      </p>
+                      <p v-show="result_makeroom">
+                        <span v-if="result_makeroom == 'ルームの作成に失敗しました'" class="text-red">{{ result_makeroom }}</span>
+                        <span v-else>{{ result_makeroom }}</span>
+                      </p>
+                      <v-form autocomplete="off">
+                        <v-text-field
+                          v-model="addStudent.name"
+                          prepend-icon="mdi-account-circle"
+                          autocomplete="off"
+                          label="名前"
+                        />
+                        <v-text-field
+                          v-model="addStudent.email"
+                          prepend-icon="mdi-email-outline"
+                          autocomplete="off"
+                          label="メールアドレス"
+                        />
+                        <v-text-field
+                          v-model="addStudent.password"
+                          :type="showPassword ? 'text' : 'password'"
+                          :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                          prepend-icon="mdi-lock"
+                          autocomplete="new-password"
+                          label="パスワード"
+                          @click:append="showPassword = !showPassword"
+                        />
+                        <v-text-field
+                          v-model="addStudent.password_conformed"
+                          :type="showPassword ? 'text' : 'password'"
+                          :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                          autocomplete="new-password"
+                          prepend-icon="mdi-lock"
+                          label="パスワード確認"
+                          @click:append="showPassword = !showPassword"
+                        />
+                        <v-col
+                          class="d-flex"
+                          cols="12"
+                          sm="6"
+                        >
+                          <v-select
+                            v-model="addStudent.selectTeacherValue"
+                            :items="selectTeacher"
+                            label="担当の先生"
+                            prepend-icon="mdi-account-circle"
+                            dense
+                            outlined
+                            @change="fetchValue($event)"
+                          />
+                        </v-col>
+                        <v-card-actions>
+                          <v-btn
+                            elevation="2"
+                            block
+                            color="primary"
+                            @click="postStudent"
+                          >
+                            新規登録
+                          </v-btn>
+                        </v-card-actions>
+                      </v-form>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+            </v-card>
+          </v-dialog>
+          <v-dialog
+            v-model="dialogEdit"
             max-width="600px"
           >
             <v-card>
@@ -287,8 +389,15 @@ export default {
     date: null,
     menu: false,
     search: '',
-    dialog: false,
+    dialogNew: false,
+    dialogEdit: false,
     dialogDelete: false,
+    showPassword: false,
+    conformed_error: false,
+    conformed_error_message: 'パスワードが違います',
+    result: '',
+    result_makeroom: '',
+    errors: [],
     headers: [
       {
         text: '名前',
@@ -306,6 +415,18 @@ export default {
       { text: '', value: '', sortable: false },
       { text: '編集/削除', value: 'actions', sortable: false }
     ],
+    addStudent: {
+      name: '',
+      email: '',
+      password: '',
+      password_conformed: '',
+      selectTeacherValue: '',
+      teacher_id: ''
+    },
+    addRoom: {
+      student_id: '',
+      teacher_id: ''
+    },
     showStudent: {
       name: '',
       email: '',
@@ -319,6 +440,14 @@ export default {
         teacher_icon: ''
       }
     },
+    selectTeacher: [],
+    teachersList: [],
+    labels: {
+      name: '名前',
+      email: 'メールアドレス',
+      password: 'パスワード'
+    },
+    nameTeachers: [],
     addressData1: '',
     addressData2: '',
     addressData3: '',
@@ -335,12 +464,79 @@ export default {
       .get('/api/v1/teachers')
       .then((response) => {
         this.allTeachers = response.data
+        response.data.forEach((v, i) => {
+          if (v.name !== null) {
+            this.selectTeacher.push(v.name)
+            this.teachersList.push(v)
+          }
+        })
       })
   },
   methods: {
+    postStudent () {
+      this.conformed_error = this.errorCheck()
+      this.result = ''
+      this.result_makeroom = ''
+      this.errors.length = 0
+      if (this.conformed_error) {
+        this.conformed_error = true
+      } else {
+        this.errors.length = 0
+        for (let i = this.teachersList.length - 1; i >= 0; i--) {
+          if (this.teachersList[i].name === this.addStudent.selectTeacherValue) {
+            this.addStudent.teacher_id = this.teachersList[i].id
+          }
+        }
+        this.regStudent()
+      }
+    },
+    async regStudent () {
+      try {
+        const res = await this.$axios.$post('/api/v1/student', this.addStudent)
+        this.result = res.status
+        this.errors.length = 0
+        this.addRoom.student_id = res.data.id
+        this.addRoom.teacher_id = res.data.teacher_id
+        this.regRoom()
+        this.errors.length = 0
+        this.addStudent.name = ''
+        this.addStudent.email = ''
+        this.addStudent.password = ''
+        this.addStudent.password_conformed = ''
+        this.addStudent.selectTeacherValue = ''
+      } catch (e) {
+        this.errors = e.response.data.errors.full_messages
+      }
+    },
+    async regRoom () {
+      try {
+        if (this.addRoom.teacher_id !== null && this.addRoom.student_id !== null) {
+          const res = await this.$axios.$post('/api/v1/rooms', this.addRoom)
+          this.result_makeroom = res
+          console.log(res)
+        }
+      } catch (e) {
+        console.log(e.response)
+      }
+    },
+    showAddStudent () {
+      this.dialogNew = true
+      this.result = ''
+      this.result_makeroom = ''
+      this.errors.length = 0
+      this.addStudent.name = ''
+      this.addStudent.email = ''
+      this.addStudent.password = ''
+      this.addStudent.password_conformed = ''
+      this.addStudent.selectTeacherValue = ''
+    },
+    fetchValue ($event) {
+      this.addStudent.selectTeacherValue = $event
+    },
     showItem (item) {
       this.showStudent = Object.assign({}, item)
-      this.dialog = true
+      this.nameTeachers = this.showStudent.teacher_name
+      this.dialogEdit = true
     },
     setImage () {
       if (this.showStudent.teacher_icon) {
@@ -420,7 +616,19 @@ export default {
       axios.get('/api/v1/students')
         .then(res => (nameTeachers = res))
       return { nameTeachers }
+    },
+    errorCheck () {
+      if (this.addStudent.password !== this.addStudent.password_conformed) {
+        return true
+      } else {
+        return false
+      }
     }
   }
 }
 </script>
+<style>
+.text-red {
+  color: red;
+}
+</style>

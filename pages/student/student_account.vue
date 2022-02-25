@@ -1,92 +1,90 @@
 <template>
-  <v-main>
-    <v-container>
-      <v-row justify="center" align="center">
-        <v-col cols="12">
-          <v-card-title class="headline">
-            {{ user.email }}さん
-          </v-card-title>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="6">
-          <v-card-actions>
-            <v-select
-              v-model="select_ability"
-              item-text="implementation_month"
-              :items="descending_abilities"
-              :menu-props="{ maxHeight: '200' }"
-              label="実施月を選択してください"
-              persistent-hint
-            />
-          </v-card-actions>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="6">
-          <v-card-actions>
-            <BarChart
-              :chart-data="bar_data_collection"
-              :options="bar_options"
-            />
-          </v-card-actions>
-        </v-col>
-        <v-col cols="6">
-          <v-card-actions>
-            <LineChart
-              :chart-data="line_data_collection"
-              :options="line_options"
-            />
-          </v-card-actions>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          {{ teacher.name }}とのトールルーム
-          <v-card
-            id="container"
-            class="line-bc"
-            color="light-blue lighten-4"
-            max-height="300"
+  <v-container>
+    <v-row justify="center" align="center">
+      <v-col cols="12">
+        <v-card-title class="headline">
+          {{ user.email }}さん
+        </v-card-title>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="6">
+        <v-card-actions>
+          <v-select
+            v-model="select_ability"
+            item-text="implementation_month"
+            :items="descending_abilities"
+            :menu-props="{ maxHeight: '200' }"
+            label="実施月を選択してください"
+            persistent-hint
+          />
+        </v-card-actions>
+      </v-col>
+    </v-row>
+    <v-row class="mt-n5">
+      <v-col cols="6">
+        <v-card-actions>
+          <BarChart
+            :chart-data="bar_data_collection"
+            :options="bar_options"
+          />
+        </v-card-actions>
+      </v-col>
+      <v-col cols="6">
+        <v-card-actions>
+          <LineChart
+            :chart-data="line_data_collection"
+            :options="line_options"
+          />
+        </v-card-actions>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        {{ teacher.name }}とのトールルーム
+        <v-card
+          id="container"
+          class="line-bc"
+          color="light-blue lighten-4"
+          max-height="300"
+        >
+          <span
+            v-for="(m, i) in messages"
+            :key="`m-${i}`"
           >
-            <span
-              v-for="(m, i) in messages"
-              :key="`m-${i}`"
-            >
-              <template v-if="m.speaker == 'teacher'">
-                <div class="student-comment">
-                  <p>{{ m.content }}</p>
+            <template v-if="m.speaker == 'teacher'">
+              <div class="student-comment">
+                <p>{{ m.content }}</p>
+              </div>
+            </template>
+            <template v-else>
+              <div class="balloon">
+                <div class="faceicon">
+                  <img src="/img/default_icon.png">
                 </div>
-              </template>
-              <template v-else>
-                <div class="balloon">
-                  <div class="faceicon">
-                    <img src="/img/default_icon.png">
-                  </div>
-                  <div class="chatting">
-                    <div class="says">
-                      <p>{{ m.content }}</p>
-                    </div>
+                <div class="chatting">
+                  <div class="says">
+                    <p>{{ m.content }}</p>
                   </div>
                 </div>
-              </template>
-            </span>
-          </v-card>
-          <div class="chatfield">
-            <v-text-field
-              v-model="send_message.content"
-              :append-outer-icon="'mdi-send'"
-              clear-icon="mdi-close-circle"
-              clearable
-              label="メッセージ"
-              outlined
-              @click:append-outer="sendMessage"
-            />
-          </div>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-main>
+              </div>
+            </template>
+          </span>
+        </v-card>
+        <div class="chatfield">
+          <v-text-field
+            v-model="send_message.content"
+            :append-outer-icon="'mdi-send'"
+            clear-icon="mdi-close-circle"
+            clearable
+            label="メッセージ"
+            outlined
+            @click:append-outer="sendMessage"
+          />
+        </div>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -170,22 +168,24 @@ export default {
     this.$axios
       .get(`/api/v1/rooms/${this.user.id}`)
       .then((response) => {
-        this.room = response.data
-        this.url = `${process.env.APIURL}`
-        const cable = ActionCable.createConsumer(this.url)
-        this.messageChannel = cable.subscriptions.create({ channel: 'ChatChannel', room: this.room[0].id }, {
-          received: (data) => {
-            this.messages.push({
-              speaker: data.speaker,
-              content: data.content,
-              room_name: data.room_name,
-              teacher_id: data.teacher_id,
-              student_id: data.student_id,
-              room_id: data.room_id
-            })
+        this.$nextTick(() => {
+          this.room = response.data
+          this.url = `${process.env.APIURL}`
+          const cable = ActionCable.createConsumer(this.url)
+          this.messageChannel = cable.subscriptions.create({ channel: 'ChatChannel', room: this.room[0].id }, {
+            received: (data) => {
+              this.messages.push({
+                speaker: data.message.speaker,
+                content: data.message.content,
+                room_name: data.message.room_name,
+                teacher_id: data.message.teacher_id,
+                student_id: data.message.student_id,
+                room_id: data.message.room_id
+              })
+            }
           }
-        }
-        )
+          )
+        })
       })
   },
   methods: {
@@ -371,6 +371,9 @@ export default {
     // チャット内容をAPIへ送信
     sendMessage () {
       this.dataSet()
+      this.messageChannel.perform('speak', {
+        message: this.send_message
+      })
       this.$axios
         .post('/api/v1/messages', this.send_message)
         .then((response) => {
