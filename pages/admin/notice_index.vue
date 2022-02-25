@@ -311,7 +311,7 @@ export default {
         'flashMessage/showMessage',
         {
           message: '削除しました',
-          type: 'danger',
+          type: 'error',
           status: true
         }
       )
