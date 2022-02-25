@@ -38,7 +38,7 @@
         v-text="title"
       />
       <v-spacer />
-      <span v-if="user">
+      <span v-if="user_info">
         <v-icon>mdi-account-circle</v-icon>
       </span>
     </v-app-bar>
@@ -58,11 +58,12 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+// import { mapGetters } from 'vuex'
 export default {
   name: 'DefaultLayout',
   data () {
     return {
+      user_info: null,
       clipped: false,
       drawer: false,
       fixed: false,
@@ -180,10 +181,23 @@ export default {
     }
   },
 
+  // computed: {
+  //   ...mapGetters({
+  //     user: 'user_information/getUser'
+  //   })
+  // },
+
   computed: {
-    ...mapGetters({
-      user: 'user_information/getUser'
-    })
+    userCheck () {
+      return this.$store.getters['user_information/getUser']
+    }
+  },
+
+  watch: {
+    userCheck (val, old) {
+      this.user_info = val
+      console.log(this.user_info)
+    }
   },
 
   methods: {
@@ -215,21 +229,32 @@ export default {
         })
     },
     setUrl () {
-      if (this.user && !this.user.teacher) {
+      if (this.user_info && !this.user_info.teacher) {
         return '/api/v1/student/sign_out'
-      } else if (this.user && this.user.teacher) {
+      } else if (this.user_info && this.user_info.teacher) {
         return '/api/v1/teacher/sign_out'
       }
     },
+    // setItems () {
+    //   if (!this.user) {
+    //     console.log(this.user)
+    //     return this.default_items
+    //   } else if (this.user && !this.user.admin && !this.user.teacher) {
+    //     return this.student_items
+    //   } else if (this.user && !this.user.admin && this.user.teacher) {
+    //     return this.teacher_items
+    //   } else if (this.user && this.user.admin) {
+    //     return this.admin_items
+    //   }
+    // },
     setItems () {
-      if (!this.user) {
-        console.log(this.user)
+      if (!this.user_info) {
         return this.default_items
-      } else if (this.user && !this.user.admin && !this.user.teacher) {
+      } else if (this.user_info && !this.user_info.admin && !this.user_info.teacher) {
         return this.student_items
-      } else if (this.user && !this.user.admin && this.user.teacher) {
+      } else if (this.user_info && !this.user_info.admin && this.user_info.teacher) {
         return this.teacher_items
-      } else if (this.user && this.user.admin) {
+      } else if (this.user_info && this.user_info.admin) {
         return this.admin_items
       }
     },
