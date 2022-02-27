@@ -310,7 +310,7 @@ export default {
       teacher_icon: '',
       introduction: '',
       subjects: [{
-        subject: []
+        subject: '未選択'
       }]
     },
     selectSubjects: ['国語', '算数', '理科', '社会', '英語'],
@@ -354,6 +354,9 @@ export default {
     },
     showItem (item) {
       this.showTeacher = Object.assign({}, item)
+      if (this.showTeacher.subjects[0] === undefined) {
+        this.showTeacher.subjects.push({ subject: [] })
+      }
       this.dialogEdit = true
     },
     setImage () {
@@ -382,6 +385,7 @@ export default {
           this.$router.go('/admin_teacher_index')
         })
     },
+
     close () {
       this.dialogEdit = false
       this.$nextTick(() => {
@@ -389,6 +393,7 @@ export default {
         this.editedIndex = -1
       })
     },
+
     closeDelete () {
       this.dialogDelete = false
       this.$nextTick(() => {
@@ -396,6 +401,7 @@ export default {
         this.editedIndex = -1
       })
     },
+
     update () {
       const url = `/api/v1/teachers/${this.showTeacher.id}`
       this.$axios.put(url, this.showTeacher)
