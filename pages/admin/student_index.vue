@@ -451,12 +451,20 @@ export default {
     addressData1: '',
     addressData2: '',
     addressData3: '',
-    allTeachers: []
+    allTeachers: [],
+    editedIndex: -1,
+    defaultItem: {}
   }),
 
   watch: {
     menu (val) {
       val && setTimeout(() => (this.activePicker = 'YEAR'))
+    },
+    dialog (val) {
+      val || this.close()
+    },
+    dialogDelete (val) {
+      val || this.closeDelete()
     }
   },
   mounted () {
@@ -489,6 +497,7 @@ export default {
         }
         this.regStudent()
       }
+      this.close()
     },
     async regStudent () {
       try {
@@ -497,6 +506,7 @@ export default {
         this.errors.length = 0
         this.addRoom.student_id = res.data.id
         this.addRoom.teacher_id = res.data.teacher_id
+        this.students.push(res.data)
         this.regRoom()
         this.errors.length = 0
         this.addStudent.name = ''
@@ -534,6 +544,7 @@ export default {
       this.addStudent.selectTeacherValue = $event
     },
     showItem (item) {
+      this.editedIndex = this.students.indexOf(item)
       this.showStudent = Object.assign({}, item)
       this.nameTeachers = this.showStudent.teacher_name
       this.dialogEdit = true
@@ -546,29 +557,34 @@ export default {
       }
     },
     deleteItem (item) {
+      this.editedIndex = this.students.indexOf(item)
       this.showStudent = Object.assign({}, item)
       this.dialogDelete = true
     },
     deleteItemConfirm () {
       const url = `/api/v1/students/${this.showStudent.id}`
       this.$axios.delete(url)
-        .then(() => {
-          this.$store.dispatch(
-            'flashMessage/showMessage',
-            {
-              message: '先生情報を削除しました',
-              type: 'danger',
-              status: true
-            }
-          )
-          this.$router.go('/admin_student_index')
-        })
+      this.students.splice(this.editedIndex, 1)
+      // .then(() => {
+      this.$store.dispatch(
+        'flashMessage/showMessage',
+        {
+          message: '先生情報を削除しました',
+          type: 'error',
+          status: true
+        }
+      )
+      // this.$router.go('/admin_student_index')
+      // })
+      this.closeDelete()
     },
 
     close () {
-      this.dialog = false
+      // this.dialog = false
+      this.dialogNew = false
+      this.dialogEdit = false
       this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
+        this.showStudent = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       })
     },
@@ -576,26 +592,30 @@ export default {
     closeDelete () {
       this.dialogDelete = false
       this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
+        this.showStudent = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       })
     },
 
     update () {
-      const url = `/api/v1/students/${this.showStudent.id}`
-      this.$axios.put(url, this.showStudent)
-        .then((res) => {
-          this.dialog = false
-          this.$store.dispatch(
-            'flashMessage/showMessage',
-            {
-              message: '先生情報を更新しました',
-              type: 'info',
-              status: true
-            }
-          )
-          this.$router.go('/admin_student_index')
-        })
+      if (this.editedIndex > -1) {
+        const url = `/api/v1/students/${this.showStudent.id}`
+        this.$axios.put(url, this.showStudent)
+        Object.assign(this.students[this.editedIndex], this.showStudent)
+        // .then((res) => {
+        // this.dialog = false
+        this.$store.dispatch(
+          'flashMessage/showMessage',
+          {
+            message: '先生情報を更新しました',
+            type: 'info',
+            status: true
+          }
+        )
+        // this.$router.go('/admin_student_index')
+        // })
+      }
+      this.close()
     },
     save (showStudent) {
       this.$refs.menu.save(showStudent)
