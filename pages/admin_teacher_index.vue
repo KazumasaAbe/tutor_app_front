@@ -310,7 +310,7 @@ export default {
       teacher_icon: '',
       introduction: '',
       subjects: [{
-        subject: []
+        subject: '未選択'
       }]
     },
     selectSubjects: ['国語', '算数', '理科', '社会', '英語'],
@@ -354,6 +354,9 @@ export default {
     },
     showItem (item) {
       this.showTeacher = Object.assign({}, item)
+      if (this.showTeacher.subjects[0] === undefined) {
+        this.showTeacher.subjects.push({ subject: [] })
+      }
       this.dialogEdit = true
     },
     setImage () {
