@@ -382,7 +382,6 @@ export default {
           this.$router.go('/admin_teacher_index')
         })
     },
-
     close () {
       this.dialogEdit = false
       this.$nextTick(() => {
@@ -390,7 +389,6 @@ export default {
         this.editedIndex = -1
       })
     },
-
     closeDelete () {
       this.dialogDelete = false
       this.$nextTick(() => {
@@ -398,7 +396,6 @@ export default {
         this.editedIndex = -1
       })
     },
-
     update () {
       const url = `/api/v1/teachers/${this.showTeacher.id}`
       this.$axios.put(url, this.showTeacher)
