@@ -470,6 +470,7 @@ export default {
   components: {
     BarChart
   },
+  middleware: 'loginRedirect',
   data () {
     return {
       dialog: false,

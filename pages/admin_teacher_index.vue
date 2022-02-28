@@ -265,6 +265,7 @@
 
 <script>
 export default {
+  middleware: 'adminRedirect',
   async asyncData ({ $axios }) {
     let teachers = []
     await $axios.$get('/api/v1/teachers')
