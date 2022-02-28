@@ -96,6 +96,7 @@ export default {
   components: {
     BarChart
   },
+  middleware: 'loginRedirect',
   data () {
     return {
       bar_data_collection: { datasets: [] },

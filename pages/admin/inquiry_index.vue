@@ -79,6 +79,7 @@
 
 <script>
 export default {
+  middleware: 'adminRedirect',
   data () {
     return {
       dialog: false,

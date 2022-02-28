@@ -88,7 +88,9 @@ export default {
             localStorage.setItem('client', response.headers.client)
             localStorage.setItem('uid', response.headers.uid)
             localStorage.setItem('token-type', response.headers['token-type'])
-            this.$router.push('/')
+            this.user = response.data.data
+            this.$store.dispatch('user_information/setUser', this.user)
+            this.$router.push(this.setRouter())
             this.$store.dispatch(
               'flashMessage/showMessage',
               {
@@ -98,8 +100,6 @@ export default {
               },
               { root: true }
             )
-            this.user = response.data.data
-            this.$store.dispatch('user_information/setUser', this.user)
             return response
           }
         )
@@ -110,6 +110,17 @@ export default {
     },
     authenticate () {
       this.$auth.loginWith('app')
+    },
+    setRouter () {
+      if (!this.user.admin) {
+        if (this.loginUrl === '/api/v1/student/sign_in') {
+          return '/student/student_account'
+        } else {
+          return '/teacher/teacher_account'
+        }
+      } else {
+        return '/admin_teacher_index'
+      }
     }
   }
 }

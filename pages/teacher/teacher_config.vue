@@ -451,6 +451,7 @@
 <script>
 export default {
   name: 'Inquiry',
+  middleware: 'teacherRedirect',
   async asyncData ({ $axios }) {
     let teachers = []
     await $axios.$get('/api/v1/teachers')
