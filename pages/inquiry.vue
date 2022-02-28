@@ -59,13 +59,6 @@
               送信
             </v-btn>
           </v-card-actions>
-          <div
-            v-for="(msg, i) in result"
-            :key="i"
-            class="result"
-          >
-            {{ msg }}
-          </div>
         </div>
       </v-card>
     </v-col>
@@ -101,7 +94,15 @@ export default {
         .then(res => this.result.push(res),
           this.inquiry.name = '',
           this.inquiry.email = '',
-          this.inquiry.content = '')
+          this.inquiry.content = '',
+          this.$store.dispatch(
+            'flashMessage/showMessage',
+            {
+              message: '送信完了しました',
+              type: 'success',
+              status: true
+            }
+          ))
         .catch((e) => {
           this.msgs.push(e.response.data)
         })
@@ -121,8 +122,5 @@ p {
 }
 .text-red {
   color: red;
-}
-.result {
-  padding-top:10px;
 }
 </style>
