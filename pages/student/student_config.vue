@@ -415,6 +415,7 @@ import { mapGetters } from 'vuex'
 
 export default {
   name: 'Inquiry',
+  middleware: 'loginRedirect',
   data () {
     return {
       image: null,

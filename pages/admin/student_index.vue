@@ -378,6 +378,7 @@
 
 <script>
 export default {
+  middleware: 'adminRedirect',
   async asyncData ({ $axios }) {
     let students = []
     await $axios.$get('/api/v1/students')

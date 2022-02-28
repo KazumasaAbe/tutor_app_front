@@ -23,15 +23,20 @@ export default {
     })
   },
   mounted () {
-    this.$store.dispatch(
-      'flashMessage/resetMessage',
-      {
-        message: '',
-        type: '',
-        status: false
-      },
-      { root: true }
-    )
+    setTimeout(this.resetFlash, 3000)
+  },
+  methods: {
+    resetFlash () {
+      this.$store.dispatch(
+        'flashMessage/resetMessage',
+        {
+          message: '',
+          type: '',
+          status: false
+        },
+        { root: true }
+      )
+    }
   }
 }
 </script>

@@ -201,6 +201,7 @@ import { mapGetters } from 'vuex'
 import goTo from 'vuetify/es5/services/goto'
 import ActionCable from 'actioncable'
 export default {
+  middleware: ['teacherRedirect'],
   async asyncData ({ $axios }) {
     let students = []
     await $axios.$get('/api/v1/students')

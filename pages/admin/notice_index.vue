@@ -200,6 +200,7 @@
 
 <script>
 export default {
+  middleware: 'adminRedirect',
   async asyncData ({ $axios }) {
     let notices = []
     await $axios.$get('/api/v1/notices')
