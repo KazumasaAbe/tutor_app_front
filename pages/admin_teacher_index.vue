@@ -137,6 +137,15 @@
                         :src="setImage()"
                       />
                     </v-avatar>
+                    <div class="text-right mr-5">
+                      <v-icon
+                        color="primary"
+                        class="mr-2"
+                        @click="editIconItem()"
+                      >
+                        mdi-pencil
+                      </v-icon>
+                    </div>
                   </v-col>
                   <v-col
                     class="mt-4"
@@ -222,23 +231,6 @@
               </v-card>
             </v-card>
           </v-dialog>
-          <v-dialog v-model="dialogDelete" max-width="500px">
-            <v-card>
-              <v-card-title class="text-h5">
-                この先生を削除します。よろしいですか？
-              </v-card-title>
-              <v-card-actions>
-                <v-spacer />
-                <v-btn color="red darken-1" text @click="closeDelete">
-                  いいえ
-                </v-btn>
-                <v-btn color="blue darken-1" text @click="deleteItemConfirm">
-                  はい
-                </v-btn>
-                <v-spacer />
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
         </v-toolbar>
       </template>
       <template #[`item.actions`]="{ item }">
@@ -257,6 +249,85 @@
         </v-icon>
       </template>
     </v-data-table>
+    <v-dialog
+      v-model="iconDialog"
+      max-width="600px"
+      persistent
+    >
+      <v-card>
+        <v-container>
+          <v-row>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title
+                  class="mb-5"
+                >
+                  アイコン編集
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  アイコン
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-row>
+          <v-row justify="center" align="center">
+            <v-avatar
+              class="profile pt-3"
+              size="200"
+              tile
+            >
+              <v-img
+                :src="sampleImg()"
+              />
+            </v-avatar>
+          </v-row>
+          <v-row>
+            <v-col cols="10">
+              <v-file-input
+                v-model="image"
+                class="mt-3"
+                truncate-length="15"
+                label="File input"
+                prepend-icon="mdi-camera"
+                outlined
+                dense
+                @change="changeFile(image)"
+              />
+            </v-col>
+          </v-row>
+          <div class="text-right">
+            <v-btn
+              color="primary"
+              @click="dialogCancel()"
+            >
+              選択
+            </v-btn>
+            <v-btn
+              @click="dialogCancel()"
+            >
+              Cancel
+            </v-btn>
+          </div>
+        </v-container>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="dialogDelete" max-width="500px">
+      <v-card>
+        <v-card-title class="text-h5">
+          この先生を削除します。よろしいですか？
+        </v-card-title>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="red darken-1" text @click="closeDelete">
+            いいえ
+          </v-btn>
+          <v-btn color="blue darken-1" text @click="deleteItemConfirm">
+            はい
+          </v-btn>
+          <v-spacer />
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -269,7 +340,10 @@ export default {
     return { teachers }
   },
   data: () => ({
+    sample: '',
+    image: null,
     search: '',
+    iconDialog: false,
     dialogNew: false,
     dialogEdit: false,
     dialogDelete: false,
@@ -390,6 +464,7 @@ export default {
 
     close () {
       this.dialogEdit = false
+      this.image = null
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
@@ -406,6 +481,8 @@ export default {
 
     update () {
       const url = `/api/v1/teachers/${this.showTeacher.id}`
+      this.showTeacher.teacher_icon = this.sample
+      console.log(this.showTeacher)
       this.$axios.put(url, this.showTeacher)
         .then((res) => {
           this.dialog = false
@@ -417,7 +494,7 @@ export default {
               status: true
             }
           )
-          this.$router.go('/admin_teacher_index')
+          // this.$router.go('/admin_teacher_index')
         })
     },
     errorCheck () {
@@ -425,6 +502,34 @@ export default {
         return true
       } else {
         return false
+      }
+    },
+    editIconItem () {
+      this.iconDialog = true
+    },
+    dialogCancel () {
+      this.iconDialog = false
+    },
+    editSetImage () {
+      if (this.showTeacher.teacher_icon) {
+        return this.showTeacher.teacher_icon
+      } else {
+        return '/img/default_icon.png'
+      }
+    },
+    changeFile (img) {
+      if (img) {
+        this.sample = this.image
+        console.log(this.sample.name)
+      } else {
+        this.showTeacher.teacher_icon = '/img/default_icon.png'
+      }
+    },
+    sampleImg () {
+      if (this.showTeacher.teacher_icon) {
+        return this.showTeacher.teacher_icon
+      } else {
+        return '/img/default_icon.png'
       }
     }
   }
