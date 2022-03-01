@@ -20,7 +20,7 @@
             @click="showItem(teacher)"
           >
             <v-img
-              :src="setTeacherIcon(teacher)"
+              :src="setImage()"
             />
 
             <v-card-title class="text-h5 pt-0 pb-4 justify-center">
@@ -156,17 +156,11 @@ export default {
       this.showTeacher = Object.assign({}, teacher)
       this.dialog = true
       this.url = `${process.env.APIURL}`
+      console.log(this.url)
     },
     setImage () {
       if (this.showTeacher.teacher_icon) {
         return this.showTeacher.teacher_icon
-      } else {
-        return '/img/default_icon.png'
-      }
-    },
-    setTeacherIcon (teacher) {
-      if (teacher.teacher_icon) {
-        return teacher.teacher_icon
       } else {
         return '/img/default_icon.png'
       }
