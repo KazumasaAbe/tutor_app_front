@@ -395,26 +395,27 @@ export default {
       }
       this.dialogDelete = true
     },
-    
     deleteItemConfirm () {
       const url = `/api/v1/teachers/${this.showTeacher.id}`
       this.$axios.delete(url)
-        // .then(() => {
-        this.$store.dispatch(
-          'flashMessage/showMessage',
-          {
-            message: '先生情報を削除しました',
-            type: 'error',
-            status: true
-          }
-        )
-        this.$router.go('/admin_teacher_index')
-        this.closeDelete()
-        // })
+      this.teachers.splice(this.editedIndex, 1)
+      // .then(() => {
+      this.$store.dispatch(
+        'flashMessage/showMessage',
+        {
+          message: '先生情報を削除しました',
+          type: 'error',
+          status: true
+        }
+      )
+      // this.$router.go('/admin_teacher_index')
+      this.closeDelete()
+      // })
     },
 
     close () {
       this.dialogEdit = false
+      this.dialogNew = false
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
@@ -430,21 +431,24 @@ export default {
     },
 
     update () {
-      const url = `/api/v1/teachers/${this.showTeacher.id}`
-      this.$axios.put(url, this.showTeacher)
-        .then((res) => {
-          this.dialog = false
-          this.$store.dispatch(
-            'flashMessage/showMessage',
-            {
-              message: '先生情報を更新しました',
-              type: 'info',
-              status: true
-            }
-          )
-          // this.$router.go('/admin_teacher_index')
-          this.close()
-        })
+      if (this.editedIndex > -1) {
+        const url = `/api/v1/teachers/${this.showTeacher.id}`
+        this.$axios.put(url, this.showTeacher)
+        Object.assign(this.teachers[this.editedIndex], this.showTeacher)
+        // .then((res) => {
+        // this.dialog = false
+        this.$store.dispatch(
+          'flashMessage/showMessage',
+          {
+            message: '先生情報を更新しました',
+            type: 'info',
+            status: true
+          }
+        )
+        // this.$router.go('/admin_teacher_index')
+        // })
+      }
+      this.close()
     },
     errorCheck () {
       if (this.addTeacher.password !== this.addTeacher.password_conformed) {
