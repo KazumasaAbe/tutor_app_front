@@ -277,7 +277,7 @@
               tile
             >
               <v-img
-                :src="sampleImg()"
+                :src="editSetImg()"
               />
             </v-avatar>
           </v-row>
@@ -537,22 +537,15 @@ export default {
     dialogCancel () {
       this.iconDialog = false
     },
-    editSetImage () {
-      if (this.showTeacher.teacher_icon) {
-        return this.showTeacher.teacher_icon
-      } else {
-        return '/img/default_icon.png'
-      }
-    },
     changeFile (img) {
       if (img) {
-        this.sample = this.image
-        console.log(this.sample)
+        this.image = img
+        this.showTeacher.teacher_icon = URL.createObjectURL(this.image)
       } else {
         this.showTeacher.teacher_icon = '/img/default_icon.png'
       }
     },
-    sampleImg () {
+    editSetImg () {
       if (this.showTeacher.teacher_icon) {
         return this.showTeacher.teacher_icon
       } else {
