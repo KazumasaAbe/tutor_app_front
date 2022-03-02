@@ -520,7 +520,7 @@ export default {
     changeFile (img) {
       if (img) {
         this.sample = this.image
-        console.log(this.sample.name)
+        console.log(this.sample)
       } else {
         this.showTeacher.teacher_icon = '/img/default_icon.png'
       }
