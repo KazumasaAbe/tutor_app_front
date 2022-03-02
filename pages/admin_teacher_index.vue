@@ -390,6 +390,7 @@ export default {
       }
       this.dialogDelete = true
     },
+    
     deleteItemConfirm () {
       const url = `/api/v1/teachers/${this.showTeacher.id}`
       this.$axios.delete(url)
