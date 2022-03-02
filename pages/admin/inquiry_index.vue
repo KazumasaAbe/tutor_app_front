@@ -12,6 +12,9 @@
       class="elevation-1 mt-3"
       @click:row="showinquiry"
     >
+      <template #[`item.created_at`]="{ item }">
+        {{ getDatetime(item.created_at) }}
+      </template>
       <template #[`item.read_at`]="{ item }">
         <v-chip
           :color="getColor(item.read_at)"
@@ -79,7 +82,6 @@
 
 <script>
 export default {
-  middleware: 'adminRedirect',
   data () {
     return {
       dialog: false,
@@ -89,17 +91,18 @@ export default {
         {
           text: 'お名前',
           value: 'name',
-          width: '30%'
+          width: '25%'
         },
         {
           text: 'メールアドレス',
           value: 'email',
-          width: '55%'
+          width: '35%'
         },
-        // {
-        //   text: '受信日時',
-        //   value: 'created_at'
-        // },
+        {
+          text: '受信日時',
+          value: 'created_at',
+          width: '25%'
+        },
         {
           text: '既読',
           value: 'read_at',
@@ -138,6 +141,21 @@ export default {
       } else if (!readtime) {
         return 'red'
       }
+    },
+    getDatetime (date) {
+      const dateTime = new Date(date)
+      const yearStr = dateTime.getFullYear()
+      const monthStr = 1 + dateTime.getMonth()
+      const dayStr = dateTime.getDate()
+      const hourStr = dateTime.getHours()
+      const minuteStr = dateTime.getMinutes()
+      let formatStr = 'YYYY/MM/DD hh:mm'
+      formatStr = formatStr.replace(/YYYY/g, yearStr)
+      formatStr = formatStr.replace(/MM/g, monthStr)
+      formatStr = formatStr.replace(/DD/g, dayStr)
+      formatStr = formatStr.replace(/hh/g, hourStr)
+      formatStr = formatStr.replace(/mm/g, minuteStr)
+      return formatStr
     }
   }
 }

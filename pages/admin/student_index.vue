@@ -72,13 +72,6 @@
                       <p v-show="conformed_error">
                         <span v-if="errorCheck" class="text-red">・{{ conformed_error_message }}</span>
                       </p>
-                      <p v-show="result == 'success'">
-                        <span>登録完了しました</span>
-                      </p>
-                      <p v-show="result_makeroom">
-                        <span v-if="result_makeroom == 'ルームの作成に失敗しました'" class="text-red">{{ result_makeroom }}</span>
-                        <span v-else>{{ result_makeroom }}</span>
-                      </p>
                       <v-form autocomplete="off">
                         <v-text-field
                           v-model="addStudent.name"
@@ -378,7 +371,6 @@
 
 <script>
 export default {
-  middleware: 'adminRedirect',
   async asyncData ({ $axios }) {
     let students = []
     await $axios.$get('/api/v1/students')
@@ -452,20 +444,12 @@ export default {
     addressData1: '',
     addressData2: '',
     addressData3: '',
-    allTeachers: [],
-    editedIndex: -1,
-    defaultItem: {}
+    allTeachers: []
   }),
 
   watch: {
     menu (val) {
       val && setTimeout(() => (this.activePicker = 'YEAR'))
-    },
-    dialog (val) {
-      val || this.close()
-    },
-    dialogDelete (val) {
-      val || this.closeDelete()
     }
   },
   mounted () {
@@ -498,7 +482,6 @@ export default {
         }
         this.regStudent()
       }
-      this.close()
     },
     async regStudent () {
       try {
@@ -507,7 +490,6 @@ export default {
         this.errors.length = 0
         this.addRoom.student_id = res.data.id
         this.addRoom.teacher_id = res.data.teacher_id
-        this.students.push(res.data)
         this.regRoom()
         this.errors.length = 0
         this.addStudent.name = ''
@@ -515,6 +497,14 @@ export default {
         this.addStudent.password = ''
         this.addStudent.password_conformed = ''
         this.addStudent.selectTeacherValue = ''
+        this.$store.dispatch(
+          'flashMessage/showMessage',
+          {
+            message: '登録完了しました',
+            type: 'success',
+            status: true
+          }
+        )
       } catch (e) {
         this.errors = e.response.data.errors.full_messages
       }
@@ -545,7 +535,6 @@ export default {
       this.addStudent.selectTeacherValue = $event
     },
     showItem (item) {
-      this.editedIndex = this.students.indexOf(item)
       this.showStudent = Object.assign({}, item)
       this.nameTeachers = this.showStudent.teacher_name
       this.dialogEdit = true
@@ -558,34 +547,29 @@ export default {
       }
     },
     deleteItem (item) {
-      this.editedIndex = this.students.indexOf(item)
       this.showStudent = Object.assign({}, item)
       this.dialogDelete = true
     },
     deleteItemConfirm () {
       const url = `/api/v1/students/${this.showStudent.id}`
       this.$axios.delete(url)
-      this.students.splice(this.editedIndex, 1)
-      // .then(() => {
-      this.$store.dispatch(
-        'flashMessage/showMessage',
-        {
-          message: '先生情報を削除しました',
-          type: 'error',
-          status: true
-        }
-      )
-      // this.$router.go('/admin_student_index')
-      // })
-      this.closeDelete()
+        .then(() => {
+          this.$store.dispatch(
+            'flashMessage/showMessage',
+            {
+              message: '先生情報を削除しました',
+              type: 'danger',
+              status: true
+            }
+          )
+          this.$router.go('/admin_student_index')
+        })
     },
 
     close () {
-      // this.dialog = false
-      this.dialogNew = false
-      this.dialogEdit = false
+      this.dialog = false
       this.$nextTick(() => {
-        this.showStudent = Object.assign({}, this.defaultItem)
+        this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       })
     },
@@ -593,30 +577,26 @@ export default {
     closeDelete () {
       this.dialogDelete = false
       this.$nextTick(() => {
-        this.showStudent = Object.assign({}, this.defaultItem)
+        this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       })
     },
 
     update () {
-      if (this.editedIndex > -1) {
-        const url = `/api/v1/students/${this.showStudent.id}`
-        this.$axios.put(url, this.showStudent)
-        Object.assign(this.students[this.editedIndex], this.showStudent)
-        // .then((res) => {
-        // this.dialog = false
-        this.$store.dispatch(
-          'flashMessage/showMessage',
-          {
-            message: '先生情報を更新しました',
-            type: 'info',
-            status: true
-          }
-        )
-        // this.$router.go('/admin_student_index')
-        // })
-      }
-      this.close()
+      const url = `/api/v1/students/${this.showStudent.id}`
+      this.$axios.put(url, this.showStudent)
+        .then((res) => {
+          this.dialog = false
+          this.$store.dispatch(
+            'flashMessage/showMessage',
+            {
+              message: '先生情報を更新しました',
+              type: 'info',
+              status: true
+            }
+          )
+          this.$router.go('/admin_student_index')
+        })
     },
     save (showStudent) {
       this.$refs.menu.save(showStudent)
