@@ -427,11 +427,11 @@ export default {
       post_code: '',
       address: '',
       birthday: '',
-      student_icon: '',
+      // student_icon: '',
       teacher_id: '',
       teachers: {
-        teacher_name: '',
-        teacher_icon: ''
+        teacher_name: ''
+        // teacher_icon: ''
       }
     },
     selectTeacher: [],
@@ -552,11 +552,16 @@ export default {
       this.dialogEdit = true
     },
     setImage () {
-      if (this.showStudent.teacher_icon) {
-        return this.showStudent.teacher_icon
+      if (this.showStudent.teacher_icon_url) {
+        return this.showStudent.teacher_icon_url
       } else {
         return '/img/default_icon.png'
       }
+      // if (this.showStudent.teacher_icon) {
+      //   return this.showStudent.teacher_icon
+      // } else {
+      //   return '/img/default_icon.png'
+      // }
     },
     deleteItem (item) {
       this.editedIndex = this.students.indexOf(item)

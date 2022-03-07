@@ -428,7 +428,7 @@ export default {
       addressData2: '',
       addressData3: '',
       editStudent: {
-        student_icon: '',
+        // student_icon: '',
         name: '',
         email: '',
         post_code: '',
@@ -456,18 +456,28 @@ export default {
   },
   methods: {
     setImage () {
-      if (this.user.student_icon) {
-        return this.user.student_icon
+      if (this.editStudent.student_icon_url) {
+        return this.editStudent.student_icon_url
       } else {
         return '/img/default_icon.png'
       }
+      // if (this.user.student_icon) {
+      //   return this.user.student_icon
+      // } else {
+      //   return '/img/default_icon.png'
+      // }
     },
     editSetImage () {
-      if (this.editStudent.student_icon) {
-        return this.editStudent.student_icon
+      if (this.editStudent.student_icon_url) {
+        return this.editStudent.student_icon_url
       } else {
         return '/img/default_icon.png'
       }
+      // if (this.editStudent.student_icon) {
+      //   return this.editStudent.student_icon
+      // } else {
+      //   return '/img/default_icon.png'
+      // }
     },
     searchAddressInfo () {
       const axios = require('axios')
@@ -509,20 +519,46 @@ export default {
     },
     changeFile (img) {
       if (img) {
-        this.editStudent.student_icon = URL.createObjectURL(this.image)
+        this.editStudent.student_icon_url = URL.createObjectURL(this.image)
       } else {
-        this.editStudent.student_icon = '/img/default_icon.png'
+        this.editStudent.student_icon_url = '/img/default_icon.png'
       }
     },
     studentInfoSave () {
-      this.$axios
-        .put('/api/v1/student', this.editStudent, {
-          headers: {
-            'access-token': localStorage.getItem('access-token'),
-            uid: localStorage.getItem('uid'),
-            client: localStorage.getItem('client')
-          }
-        })
+      const formData = new FormData()
+      if (this.image) {
+        formData.append('student_icon', this.image)
+      }
+      formData.append('id', this.editStudent.id)
+      formData.append('name', this.editStudent.name)
+      formData.append('email', this.editStudent.email)
+      formData.append('post_code', this.editStudent.post_code)
+      formData.append('address', this.editStudent.address)
+      formData.append('birthday', this.editStudent.birthday)
+      const config = {
+        headers: {
+          'content-type': 'multipart/form-data'
+        }
+      }
+      const url = `/api/v1/students/${this.editStudent.id}`
+      // this.$axios.$patch(url, this.notice)
+      // Object.assign(this.notices[this.editedIndex], this.editStudent)
+      this.$axios.put(url, formData, config, {
+        headers: {
+          'access-token': localStorage.getItem('access-token'),
+          uid: localStorage.getItem('uid'),
+          client: localStorage.getItem('client')
+        }
+      })
+      // this.$axios.$patch(url, formData, config)
+      // this.$axios
+      //   .put('/api/v1/student', this.editStudent, {
+      //     headers: {
+      //       'access-token': localStorage.getItem('access-token'),
+      //       uid: localStorage.getItem('uid'),
+      //       client: localStorage.getItem('client')
+      //     }
+      //   })
         .then((response) => {
           this.account = Object.assign({}, this.editStudent)
           this.$store.dispatch('user_information/setUser', this.account)
@@ -543,8 +579,10 @@ export default {
         }
         )
         .catch((e) => {
-          console.log(e.response.data.errors.full_messages)
-          this.errors = e.response.data.errors.full_messages
+          console.log(e.response.errors.full_messages)
+          this.errors = e.response.errors.full_messages
+          // console.log(e.response.data.errors.full_messages)
+          // this.errors = e.response.data.errors.full_messages
         })
     }
   }
