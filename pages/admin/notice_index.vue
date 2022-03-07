@@ -90,7 +90,6 @@
                       md="6"
                     >
                       <v-img
-                        v-model="notice.notice_image"
                         max-height="250"
                         max-width="250"
                         :src="setImage()"
@@ -225,13 +224,13 @@ export default {
     notice: {
       id: '',
       title: '',
-      notice_image: '',
+      // notice_image: '',
       text: ''
     },
     editedIndex: -1,
     defaultItem: {
       title: '',
-      notice_image: '',
+      // notice_image: '',
       text: ''
     }
   }),
@@ -275,8 +274,8 @@ export default {
       }
     },
     setImage () {
-      if (this.notice.notice_image) {
-        return this.notice.notice_image
+      if (this.notice.notice_icon_url) {
+        return this.notice.notice_icon_url
       } else {
         return '/img/notice_img.png'
       }
@@ -284,9 +283,10 @@ export default {
 
     changeFile (img) {
       if (img) {
-        this.notice.notice_image = URL.createObjectURL(this.image)
+        this.image = img
+        this.notice.notice_icon_url = URL.createObjectURL(this.image)
       } else {
-        this.notice.notice_image = '/img/notice_img.png'
+        this.notice.notice_icon_url = '/img/notice_img.png'
       }
     },
 
@@ -319,6 +319,8 @@ export default {
 
     close () {
       this.dialog = false
+      this.notice.notice_icon_url = null
+      this.image = null
       this.$nextTick(() => {
         this.notice = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
@@ -335,9 +337,23 @@ export default {
 
     save () {
       if (this.editedIndex > -1) {
+        console.log(this.notice)
+        const formData = new FormData()
+        if (this.image) {
+          formData.append('notice_icon', this.image)
+        }
+        formData.append('id', this.notice.id)
+        formData.append('title', this.notice.title)
+        formData.append('text', this.notice.text)
+        const config = {
+          headers: {
+            'content-type': 'multipart/form-data'
+          }
+        }
         const url = `/api/v1/notices/${this.notice.id}`
-        this.$axios.$patch(url, this.notice)
+        // this.$axios.$patch(url, this.notice)
         Object.assign(this.notices[this.editedIndex], this.notice)
+        this.$axios.$patch(url, formData, config)
         this.$store.dispatch(
           'flashMessage/showMessage',
           {
@@ -347,7 +363,20 @@ export default {
           }
         )
       } else {
-        this.$axios.$post('/api/v1/notices', this.notice)
+        // console.log(this.notice)
+        const formData = new FormData()
+        if (this.image) {
+          formData.append('notice_icon', this.image)
+        }
+        // formData.append('id', this.notice.id)
+        formData.append('title', this.notice.title)
+        formData.append('text', this.notice.text)
+        const config = {
+          headers: {
+            'content-type': 'multipart/form-data'
+          }
+        }
+        this.$axios.$post('/api/v1/notices', formData, config)
           .then(res => this.notices.push(res))
         // this.notices.push(this.notice)
         // console.log(this.notices)
