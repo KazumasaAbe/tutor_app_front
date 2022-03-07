@@ -277,7 +277,7 @@
               tile
             >
               <v-img
-                :src="sampleImg()"
+                :src="editSetImg()"
               />
             </v-avatar>
           </v-row>
@@ -341,7 +341,6 @@ export default {
     return { teachers }
   },
   data: () => ({
-    sample: '',
     image: null,
     search: '',
     iconDialog: false,
@@ -379,7 +378,6 @@ export default {
     showTeacher: {
       name: '',
       email: '',
-      teacher_icon: '',
       introduction: '',
       subjects: [{
         subject: '未選択'
@@ -447,6 +445,7 @@ export default {
       this.addTeacher.password_conformed = ''
     },
     showItem (item) {
+      console.log(item)
       this.editedIndex = this.teachers.indexOf(item)
       this.showTeacher = Object.assign({}, item)
       if (this.showTeacher.subjects[0] === undefined) {
@@ -455,8 +454,8 @@ export default {
       this.dialogEdit = true
     },
     setImage () {
-      if (this.showTeacher.teacher_icon) {
-        return this.showTeacher.teacher_icon
+      if (this.showTeacher.teacher_icon_url) {
+        return this.showTeacher.teacher_icon_url
       } else {
         return '/img/default_icon.png'
       }
@@ -490,6 +489,8 @@ export default {
     close () {
       this.dialogEdit = false
       this.dialogNew = false
+      this.showTeacher.teacher_icon_url = null
+      this.image = null
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
@@ -506,19 +507,48 @@ export default {
 
     update () {
       if (this.editedIndex > -1) {
-        const url = `/api/v1/teachers/${this.showTeacher.id}`
-        this.$axios.put(url, this.showTeacher)
-        Object.assign(this.teachers[this.editedIndex], this.showTeacher)
-        // .then((res) => {
-        // this.dialog = false
-        this.$store.dispatch(
-          'flashMessage/showMessage',
-          {
-            message: '先生情報を更新しました',
-            type: 'info',
-            status: true
+        const formData = new FormData()
+        if (this.image) {
+          formData.append('teacher_icon', this.image)
+        }
+        formData.append('id', this.showTeacher.id)
+        formData.append('name', this.showTeacher.name)
+        formData.append('introduction', this.showTeacher.introduction)
+        if (this.showTeacher.subjects[0].subject.length > 0) {
+          this.showTeacher.subjects[0].subject.forEach((text) => {
+            formData.append('subject[]', text)
+          })
+        }
+        const config = {
+          headers: {
+            'content-type': 'multipart/form-data'
           }
-        )
+        }
+        const url = `/api/v1/teachers/${this.showTeacher.id}`
+        console.log(this.showTeacher)
+        Object.assign(this.teachers[this.editedIndex], this.showTeacher)
+        this.$axios.put(url, formData, config)
+          .then((res) => {
+            this.$store.dispatch(
+              'flashMessage/showMessage',
+              {
+                message: '先生情報を更新しました',
+                type: 'info',
+                status: true
+              }
+            )
+          })
+        // Object.assign(this.teachers[this.editedIndex], this.showTeacher)
+        // // .then((res) => {
+        // // this.dialog = false
+        // this.$store.dispatch(
+        //   'flashMessage/showMessage',
+        //   {
+        //     message: '先生情報を更新しました',
+        //     type: 'info',
+        //     status: true
+        //   }
+        // )
         // this.$router.go('/admin_teacher_index')
         // })
       }
@@ -537,27 +567,23 @@ export default {
     dialogCancel () {
       this.iconDialog = false
     },
-    editSetImage () {
-      if (this.showTeacher.teacher_icon) {
-        return this.showTeacher.teacher_icon
-      } else {
-        return '/img/default_icon.png'
-      }
-    },
     changeFile (img) {
       if (img) {
-        this.sample = this.image
-        console.log(this.sample)
+        this.image = img
+        this.showTeacher.teacher_icon_url = URL.createObjectURL(this.image)
       } else {
-        this.showTeacher.teacher_icon = '/img/default_icon.png'
+        this.showTeacher.teacher_icon_url = '/img/default_icon.png'
       }
     },
-    sampleImg () {
-      if (this.showTeacher.teacher_icon) {
-        return this.showTeacher.teacher_icon
+    editSetImg () {
+      if (this.showTeacher.teacher_icon_url) {
+        return this.showTeacher.teacher_icon_url
       } else {
         return '/img/default_icon.png'
       }
+    },
+    check () {
+      console.log(this.teachers)
     }
   }
 }
