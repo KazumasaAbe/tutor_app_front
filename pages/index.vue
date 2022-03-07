@@ -98,7 +98,6 @@
                     <v-col cols="12">
                       <div class="text-center">
                         <v-img
-                          v-model="showNotice.notice_image"
                           max-height="300"
                           max-width="300"
                           :src="setImage()"
@@ -134,7 +133,7 @@ export default {
     showNotice: {
       created_at: '',
       title: '',
-      notice_image: '',
+      // notice_image: '',
       text: ''
     }
   }),
@@ -166,8 +165,8 @@ export default {
       }
     },
     setImage () {
-      if (this.showNotice.notice_image) {
-        return this.showNotice.notice_image
+      if (this.showNotice.notice_icon_url) {
+        return this.showNotice.notice_icon_url
       } else {
         return '/img/default_icon.png'
       }
