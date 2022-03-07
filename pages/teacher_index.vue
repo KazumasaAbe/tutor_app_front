@@ -20,7 +20,7 @@
             @click="showItem(teacher)"
           >
             <v-img
-              :src="setImage()"
+              :src="setImage(teacher)"
             />
 
             <v-card-title class="text-h5 pt-0 pb-4 justify-center">
@@ -39,7 +39,7 @@
               tile
             >
               <v-img
-                :src="setImage()"
+                :src="showSetImage()"
               />
             </v-avatar>
           </v-col>
@@ -128,7 +128,7 @@ export default {
       dialog: false,
       showTeacher: {
         name: '',
-        teacher_icon: '',
+        teacher_icon_url: '',
         introduction: '',
         subjects: [
           { subject: [] }
@@ -156,11 +156,17 @@ export default {
       this.showTeacher = Object.assign({}, teacher)
       this.dialog = true
       this.url = `${process.env.APIURL}`
-      console.log(this.url)
     },
-    setImage () {
-      if (this.showTeacher.teacher_icon) {
-        return this.showTeacher.teacher_icon
+    setImage (item) {
+      if (item.teacher_icon_url) {
+        return item.teacher_icon_url
+      } else {
+        return '/img/default_icon.png'
+      }
+    },
+    showSetImage () {
+      if (this.showTeacher.teacher_icon_url) {
+        return this.showTeacher.teacher_icon_url
       } else {
         return '/img/default_icon.png'
       }
