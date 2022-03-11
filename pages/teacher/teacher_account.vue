@@ -19,8 +19,20 @@
             v-on="on"
             @click="showItem(student)"
           >
-            <v-img
+            <!-- <v-img
               :src="setImage()"
+            /> -->
+            <v-img
+              v-if="student.student_icon_url"
+              width="250"
+              height="200"
+              :src="student.student_icon_url"
+            />
+            <v-img
+              v-else
+              width="250"
+              height="200"
+              :src="studentsetImage()"
             />
 
             <v-card-title
@@ -276,9 +288,16 @@ export default {
       this.showStudent = Object.assign({}, student)
       this.dialog = true
     },
-    setImage () {
+    studentsetImage () {
       if (this.showStudent.student_icon) {
         return this.showStudent.student_icon
+      } else {
+        return '/img/default_icon.png'
+      }
+    },
+    setImage () {
+      if (this.showStudent.student_icon_url) {
+        return this.showStudent.student_icon_url
       } else {
         return '/img/default_icon.png'
       }

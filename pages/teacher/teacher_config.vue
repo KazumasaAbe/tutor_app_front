@@ -23,8 +23,20 @@
                       tile
                     >
                       <v-img
+                        v-if="teacherItem.teacher_icon_url"
+                        width="250"
+                        height="300"
+                        :src="teacherItem.teacher_icon_url"
+                      />
+                      <v-img
+                        v-else
+                        width="250"
+                        height="300"
                         :src="setImage()"
                       />
+                      <!-- <v-img
+                        :src="setImage()"
+                      /> -->
                     </v-avatar>
                     <div class="text-right mr-5">
                       <v-icon
@@ -277,6 +289,7 @@
                               prepend-icon="mdi-account-circle"
                             >
                               &emsp;{{ subjects.subject.join(',') }}
+                              <!-- &emsp;{{ subjects.subject }} -->
                             </span>
                           </v-list-item-content>
                           <v-list-item-action>
@@ -511,24 +524,24 @@ export default {
       this.dialog = true
     },
     iconImage () {
-      if (this.teacher.teacher_icon) {
-        return this.teacher.teacher_icon
+      if (this.teacher.teacher_icon_url) {
+        return this.teacher.teacher_icon_url
       } else {
         return '/img/default_icon.png'
       }
     },
     setImage () {
-      if (this.teacher.teacher_icon) {
-        return this.teacher.teacher_icon
+      if (this.teacher.teacher_icon_url) {
+        return this.teacher.teacher_icon_url
       } else {
         return '/img/default_icon.png'
       }
     },
     changeFile (img) {
       if (img) {
-        this.teacher.teacher_icon = URL.createObjectURL(this.image)
+        this.teacher.teacher_icon_url = URL.createObjectURL(this.image)
       } else {
-        this.teacher.teacher_icon = '/img/default_icon.png'
+        this.teacher.teacher_icon_url = '/img/default_icon.png'
       }
     },
     close () {
@@ -545,21 +558,47 @@ export default {
     },
     save () {
       if (this.editedIndex > -1) {
-        const url = `/api/v1/teachers/${this.teacher.id}`
-        this.$axios.$patch(url, this.teacher)
-          .then((res) => {
-            this.defaultItem = res
-            Object.assign(this.teachers[this.editedIndex], this.defaultItem)
-            this.$store.dispatch(
-              'flashMessage/showMessage',
-              {
-                message: '先生情報を更新しました!',
-                type: 'info',
-                status: true
-              }
-            )
-            this.close()
+        const formData = new FormData()
+        if (this.image) {
+          formData.append('teacher_icon', this.image)
+        }
+        formData.append('id', this.teacher.id)
+        formData.append('name', this.teacher.name)
+        formData.append('email', this.teacher.email)
+        formData.append('introduction', this.teacher.introduction)
+        if (this.teacher.subjects.subject) {
+          this.teacher.subjects.subject.forEach((text) => {
+            formData.append('subject[]', text)
           })
+        }
+        const config = {
+          headers: {
+            'content-type': 'multipart/form-data'
+          }
+        }
+        const url = `/api/v1/teachers/${this.teacher.id}`
+        // this.$axios.put(url, formData, config)
+        this.$axios.patch(url, formData, config)
+        // .then((res) => {
+        // this.defaultItem = res
+        // console.log(res)
+        // Object.assign(this.teachers[this.editedIndex], this.defaultItem)
+        Object.assign(this.teachers[this.editedIndex], this.teacher)
+        // if (this.teacher.subjects.subject) {
+        //   Object.assign(this.teachers[this.editedIndex], this.teacher)
+        // Object.assign(this.teachers[this.editedIndex], this.teacher.subjects)
+        // Object.assign(this.teachers[this.editedIndex], this.defaultItem)
+        // }
+        this.$store.dispatch(
+          'flashMessage/showMessage',
+          {
+            message: '先生情報を更新しました!',
+            type: 'info',
+            status: true
+          }
+        )
+        this.close()
+        // })
       }
     }
   }
