@@ -72,9 +72,6 @@
                       <p v-show="conformed_error">
                         <span v-if="errorCheck" class="text-red">・{{ conformed_error_message }}</span>
                       </p>
-                      <p v-show="result == 'success'">
-                        <span>登録完了しました</span>
-                      </p>
                       <v-form autocomplete="off">
                         <v-text-field
                           v-model="addTeacher.name"
@@ -140,6 +137,15 @@
                         :src="setImage()"
                       />
                     </v-avatar>
+                    <div class="text-right mr-5">
+                      <v-icon
+                        color="primary"
+                        class="mr-2"
+                        @click="editIconItem()"
+                      >
+                        mdi-pencil
+                      </v-icon>
+                    </div>
                   </v-col>
                   <v-col
                     class="mt-4"
@@ -225,23 +231,6 @@
               </v-card>
             </v-card>
           </v-dialog>
-          <v-dialog v-model="dialogDelete" max-width="500px">
-            <v-card>
-              <v-card-title class="text-h5">
-                この先生を削除します。よろしいですか？
-              </v-card-title>
-              <v-card-actions>
-                <v-spacer />
-                <v-btn color="red darken-1" text @click="closeDelete">
-                  いいえ
-                </v-btn>
-                <v-btn color="blue darken-1" text @click="deleteItemConfirm">
-                  はい
-                </v-btn>
-                <v-spacer />
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
         </v-toolbar>
       </template>
       <template #[`item.actions`]="{ item }">
@@ -260,11 +249,91 @@
         </v-icon>
       </template>
     </v-data-table>
+    <v-dialog
+      v-model="iconDialog"
+      max-width="600px"
+      persistent
+    >
+      <v-card>
+        <v-container>
+          <v-row>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title
+                  class="mb-5"
+                >
+                  アイコン編集
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  アイコン
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-row>
+          <v-row justify="center" align="center">
+            <v-avatar
+              class="profile pt-3"
+              size="200"
+              tile
+            >
+              <v-img
+                :src="editSetImg()"
+              />
+            </v-avatar>
+          </v-row>
+          <v-row>
+            <v-col cols="10">
+              <v-file-input
+                v-model="image"
+                class="mt-3"
+                truncate-length="15"
+                label="File input"
+                prepend-icon="mdi-camera"
+                outlined
+                dense
+                @change="changeFile(image)"
+              />
+            </v-col>
+          </v-row>
+          <div class="text-right">
+            <v-btn
+              color="primary"
+              @click="dialogCancel()"
+            >
+              選択
+            </v-btn>
+            <v-btn
+              @click="dialogCancel()"
+            >
+              Cancel
+            </v-btn>
+          </div>
+        </v-container>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="dialogDelete" max-width="500px">
+      <v-card>
+        <v-card-title class="text-h5">
+          この先生を削除します。よろしいですか？
+        </v-card-title>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="red darken-1" text @click="closeDelete">
+            いいえ
+          </v-btn>
+          <v-btn color="blue darken-1" text @click="deleteItemConfirm">
+            はい
+          </v-btn>
+          <v-spacer />
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
 <script>
 export default {
+  middleware: 'adminRedirect',
   async asyncData ({ $axios }) {
     let teachers = []
     await $axios.$get('/api/v1/teachers')
@@ -272,7 +341,9 @@ export default {
     return { teachers }
   },
   data: () => ({
+    image: null,
     search: '',
+    iconDialog: false,
     dialogNew: false,
     dialogEdit: false,
     dialogDelete: false,
@@ -307,10 +378,9 @@ export default {
     showTeacher: {
       name: '',
       email: '',
-      teacher_icon: '',
       introduction: '',
       subjects: [{
-        subject: []
+        subject: '未選択'
       }]
     },
     selectSubjects: ['国語', '算数', '理科', '社会', '英語'],
@@ -318,8 +388,20 @@ export default {
       name: '名前',
       email: 'メールアドレス',
       password: 'パスワード'
-    }
+    },
+    editedIndex: -1,
+    defaultItem: {}
   }),
+
+  watch: {
+    dialog (val) {
+      val || this.close()
+    },
+    dialogDelete (val) {
+      val || this.closeDelete()
+    }
+  },
+
   methods: {
     postTeacher () {
       this.conformed_error = this.errorCheck()
@@ -332,16 +414,26 @@ export default {
         this.$axios.$post('/api/v1/teacher', this.addTeacher)
           .then((res) => {
             this.result = res.status
+            this.teachers.push(res.data)
             this.errors.length = 0
             this.addTeacher.name = ''
             this.addTeacher.email = ''
             this.addTeacher.password = ''
             this.addTeacher.password_conformed = ''
+            this.$store.dispatch(
+              'flashMessage/showMessage',
+              {
+                message: '登録完了しました',
+                type: 'success',
+                status: true
+              }
+            )
           })
           .catch((e) => {
             this.errors = e.response.data.errors.full_messages
           })
       }
+      this.close()
     },
     showAddTeacher () {
       this.dialogNew = true
@@ -353,38 +445,52 @@ export default {
       this.addTeacher.password_conformed = ''
     },
     showItem (item) {
+      console.log(item)
+      this.editedIndex = this.teachers.indexOf(item)
       this.showTeacher = Object.assign({}, item)
+      if (this.showTeacher.subjects[0] === undefined) {
+        this.showTeacher.subjects.push({ subject: [] })
+      }
       this.dialogEdit = true
     },
     setImage () {
-      if (this.showTeacher.teacher_icon) {
-        return this.showTeacher.teacher_icon
+      if (this.showTeacher.teacher_icon_url) {
+        return this.showTeacher.teacher_icon_url
       } else {
         return '/img/default_icon.png'
       }
     },
     deleteItem (item) {
+      this.editedIndex = this.teachers.indexOf(item)
       this.showTeacher = Object.assign({}, item)
+      if (this.showTeacher.subjects[0] === undefined) {
+        this.showTeacher.subjects.push({ subject: [] })
+      }
       this.dialogDelete = true
     },
     deleteItemConfirm () {
       const url = `/api/v1/teachers/${this.showTeacher.id}`
       this.$axios.delete(url)
-        .then(() => {
-          this.$store.dispatch(
-            'flashMessage/showMessage',
-            {
-              message: '先生情報を削除しました',
-              type: 'danger',
-              status: true
-            }
-          )
-          this.$router.go('/admin_teacher_index')
-        })
+      this.teachers.splice(this.editedIndex, 1)
+      // .then(() => {
+      this.$store.dispatch(
+        'flashMessage/showMessage',
+        {
+          message: '先生情報を削除しました',
+          type: 'error',
+          status: true
+        }
+      )
+      // this.$router.go('/admin_teacher_index')
+      this.closeDelete()
+      // })
     },
 
     close () {
       this.dialogEdit = false
+      this.dialogNew = false
+      this.showTeacher.teacher_icon_url = null
+      this.image = null
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
@@ -400,20 +506,53 @@ export default {
     },
 
     update () {
-      const url = `/api/v1/teachers/${this.showTeacher.id}`
-      this.$axios.put(url, this.showTeacher)
-        .then((res) => {
-          this.dialog = false
-          this.$store.dispatch(
-            'flashMessage/showMessage',
-            {
-              message: '先生情報を更新しました',
-              type: 'info',
-              status: true
-            }
-          )
-          this.$router.go('/admin_teacher_index')
-        })
+      if (this.editedIndex > -1) {
+        const formData = new FormData()
+        if (this.image) {
+          formData.append('teacher_icon', this.image)
+        }
+        formData.append('id', this.showTeacher.id)
+        formData.append('name', this.showTeacher.name)
+        formData.append('introduction', this.showTeacher.introduction)
+        if (this.showTeacher.subjects[0].subject.length > 0) {
+          this.showTeacher.subjects[0].subject.forEach((text) => {
+            formData.append('subject[]', text)
+          })
+        }
+        const config = {
+          headers: {
+            'content-type': 'multipart/form-data'
+          }
+        }
+        const url = `/api/v1/teachers/${this.showTeacher.id}`
+        console.log(this.showTeacher)
+        Object.assign(this.teachers[this.editedIndex], this.showTeacher)
+        this.$axios.put(url, formData, config)
+          .then((res) => {
+            this.$store.dispatch(
+              'flashMessage/showMessage',
+              {
+                message: '先生情報を更新しました',
+                type: 'info',
+                status: true
+              }
+            )
+          })
+        // Object.assign(this.teachers[this.editedIndex], this.showTeacher)
+        // // .then((res) => {
+        // // this.dialog = false
+        // this.$store.dispatch(
+        //   'flashMessage/showMessage',
+        //   {
+        //     message: '先生情報を更新しました',
+        //     type: 'info',
+        //     status: true
+        //   }
+        // )
+        // this.$router.go('/admin_teacher_index')
+        // })
+      }
+      this.close()
     },
     errorCheck () {
       if (this.addTeacher.password !== this.addTeacher.password_conformed) {
@@ -421,6 +560,30 @@ export default {
       } else {
         return false
       }
+    },
+    editIconItem () {
+      this.iconDialog = true
+    },
+    dialogCancel () {
+      this.iconDialog = false
+    },
+    changeFile (img) {
+      if (img) {
+        this.image = img
+        this.showTeacher.teacher_icon_url = URL.createObjectURL(this.image)
+      } else {
+        this.showTeacher.teacher_icon_url = '/img/default_icon.png'
+      }
+    },
+    editSetImg () {
+      if (this.showTeacher.teacher_icon_url) {
+        return this.showTeacher.teacher_icon_url
+      } else {
+        return '/img/default_icon.png'
+      }
+    },
+    check () {
+      console.log(this.teachers)
     }
   }
 }

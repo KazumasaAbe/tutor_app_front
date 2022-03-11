@@ -96,6 +96,7 @@ export default {
   components: {
     BarChart
   },
+  middleware: 'loginRedirect',
   data () {
     return {
       bar_data_collection: { datasets: [] },
@@ -370,16 +371,28 @@ export default {
     },
     // チャット内容をAPIへ送信
     sendMessage () {
-      this.dataSet()
-      this.messageChannel.perform('speak', {
-        message: this.send_message
-      })
-      this.$axios
-        .post('/api/v1/messages', this.send_message)
-        .then((response) => {
-          this.status = response.data
+      if (this.send_message.content) {
+        this.dataSet()
+        this.messageChannel.perform('speak', {
+          message: this.send_message
         })
-      this.send_message.content = ''
+        this.$axios
+          .post('/api/v1/messages', this.send_message)
+          .then((response) => {
+            this.status = response.data
+          })
+        this.send_message.content = ''
+      } else {
+        this.$store.dispatch(
+          'flashMessage/showMessage',
+          {
+            message: 'メッセージを入力してください',
+            type: 'error',
+            status: true
+          },
+          { root: true }
+        )
+      }
     },
     // チャット内容の付属データをオブジェクトへ追加
     dataSet () {

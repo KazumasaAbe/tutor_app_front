@@ -19,8 +19,20 @@
             v-on="on"
             @click="showItem(student)"
           >
-            <v-img
+            <!-- <v-img
               :src="setImage()"
+            /> -->
+            <v-img
+              v-if="student.student_icon_url"
+              width="250"
+              height="200"
+              :src="student.student_icon_url"
+            />
+            <v-img
+              v-else
+              width="250"
+              height="200"
+              :src="studentsetImage()"
             />
 
             <v-card-title
@@ -201,6 +213,7 @@ import { mapGetters } from 'vuex'
 import goTo from 'vuetify/es5/services/goto'
 import ActionCable from 'actioncable'
 export default {
+  middleware: ['teacherRedirect'],
   async asyncData ({ $axios }) {
     let students = []
     await $axios.$get('/api/v1/students')
@@ -275,9 +288,16 @@ export default {
       this.showStudent = Object.assign({}, student)
       this.dialog = true
     },
-    setImage () {
+    studentsetImage () {
       if (this.showStudent.student_icon) {
         return this.showStudent.student_icon
+      } else {
+        return '/img/default_icon.png'
+      }
+    },
+    setImage () {
+      if (this.showStudent.student_icon_url) {
+        return this.showStudent.student_icon_url
       } else {
         return '/img/default_icon.png'
       }
@@ -330,16 +350,28 @@ export default {
       this.el.scrollTo(0, this.el.scrollHeight)
     },
     sendMessage () {
-      this.dataSet()
-      this.messageChannel.perform('speak', {
-        message: this.send_message
-      })
-      this.$axios
-        .post('/api/v1/messages', this.send_message)
-        .then((response) => {
-          this.status = response.data
+      if (this.send_message.content) {
+        this.dataSet()
+        this.messageChannel.perform('speak', {
+          message: this.send_message
         })
-      this.send_message.content = ''
+        this.$axios
+          .post('/api/v1/messages', this.send_message)
+          .then((response) => {
+            this.status = response.data
+          })
+        this.send_message.content = ''
+      } else {
+        this.$store.dispatch(
+          'flashMessage/showMessage',
+          {
+            message: 'メッセージを入力してください',
+            type: 'error',
+            status: true
+          },
+          { root: true }
+        )
+      }
     },
     // チャット内容の付属データをオブジェクトへ追加
     dataSet () {

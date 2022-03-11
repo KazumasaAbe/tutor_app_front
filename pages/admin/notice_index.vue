@@ -55,6 +55,8 @@
                 <span class="text-h5">{{ formTitle }}</span>
                 <v-spacer />
                 <v-icon
+                  x-large
+                  color="black"
                   @click="close"
                 >
                   mdi-close-box-outline
@@ -88,23 +90,23 @@
                       md="6"
                     >
                       <v-img
-                        v-model="notice.notice_image"
                         max-height="250"
                         max-width="250"
                         :src="setImage()"
                       />
-                      <div class="col-12 clearfix">
-                        <div class="float-right test-box">
-                          <v-icon
-                            v-model="notice.notice_image"
-                            accept="image/png, image/jpeg, image/bmp"
-                          >
-                            mdi-plus-box-outline
-                          </v-icon>
-                        </div>
-                      </div>
+                      <v-file-input
+                        v-model="image"
+                        class="mt-3"
+                        truncate-length="15"
+                        label="File input"
+                        prepend-icon="mdi-camera"
+                        outlined
+                        dense
+                        @change="changeFile(image)"
+                      />
                     </v-col>
                     <v-col
+                      class="notice-text"
                       cols="12"
                       sm="12"
                       md="12"
@@ -124,9 +126,9 @@
                   <template #activator="{ on, attrs }">
                     <v-btn
                       v-if="editedIndex > -1"
-                      color="#ADE176"
+                      color="primary"
                       dark
-                      class="mb-2"
+                      class="mb-2 notice-btn"
                       v-bind="attrs"
                       @click="save"
                       v-on="on"
@@ -135,9 +137,9 @@
                     </v-btn>
                     <v-btn
                       v-else
-                      color="#ADE176"
+                      color="primary"
                       dark
-                      class="mb-2"
+                      class="mb-2 notice-btn"
                       v-bind="attrs"
                       @click="save"
                       v-on="on"
@@ -170,7 +172,6 @@
       </template>
       <template #[`item.actions`]="{ item }">
         <v-icon
-          small
           class="mr-2"
           color="primary"
           @click="editItem(item)"
@@ -178,7 +179,6 @@
           mdi-pencil
         </v-icon>
         <v-icon
-          small
           color="red"
           @click="deleteItem(item)"
         >
@@ -199,6 +199,7 @@
 
 <script>
 export default {
+  middleware: 'adminRedirect',
   async asyncData ({ $axios }) {
     let notices = []
     await $axios.$get('/api/v1/notices')
@@ -206,6 +207,7 @@ export default {
     return { notices }
   },
   data: () => ({
+    image: null,
     dialog: false,
     dialogDelete: false,
     search: '',
@@ -215,7 +217,6 @@ export default {
         align: 'start',
         value: 'created_at'
       },
-      // { text: 'id', value: 'id' },
       { text: 'title', value: 'title' },
       { text: '編集/削除', value: 'actions', sortable: false }
     ],
@@ -223,13 +224,13 @@ export default {
     notice: {
       id: '',
       title: '',
-      notice_image: '',
+      // notice_image: '',
       text: ''
     },
     editedIndex: -1,
     defaultItem: {
       title: '',
-      notice_image: '',
+      // notice_image: '',
       text: ''
     }
   }),
@@ -254,10 +255,6 @@ export default {
     }
   },
 
-  mounted () {
-    this.loadItems()
-  },
-
   created () {
     this.initialize()
   },
@@ -268,11 +265,7 @@ export default {
       this.$axios.$get('/api/v1/notices')
         .then(res => (this.notices = res))
     },
-    loadItems () {
-      this.notices = []
-      this.$axios.$get('/api/v1/notices')
-        .then(res => (this.notices = res))
-    },
+
     iconImag () {
       if (this.notice.notice_title) {
         return this.notice.title
@@ -281,10 +274,19 @@ export default {
       }
     },
     setImage () {
-      if (this.notice.notice_image) {
-        return this.notice.notice_image
+      if (this.notice.notice_icon_url) {
+        return this.notice.notice_icon_url
       } else {
         return '/img/notice_img.png'
+      }
+    },
+
+    changeFile (img) {
+      if (img) {
+        this.image = img
+        this.notice.notice_icon_url = URL.createObjectURL(this.image)
+      } else {
+        this.notice.notice_icon_url = '/img/notice_img.png'
       }
     },
 
@@ -308,7 +310,7 @@ export default {
         'flashMessage/showMessage',
         {
           message: '削除しました',
-          type: 'danger',
+          type: 'error',
           status: true
         }
       )
@@ -317,6 +319,8 @@ export default {
 
     close () {
       this.dialog = false
+      this.notice.notice_icon_url = null
+      this.image = null
       this.$nextTick(() => {
         this.notice = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
@@ -333,9 +337,23 @@ export default {
 
     save () {
       if (this.editedIndex > -1) {
+        console.log(this.notice)
+        const formData = new FormData()
+        if (this.image) {
+          formData.append('notice_icon', this.image)
+        }
+        formData.append('id', this.notice.id)
+        formData.append('title', this.notice.title)
+        formData.append('text', this.notice.text)
+        const config = {
+          headers: {
+            'content-type': 'multipart/form-data'
+          }
+        }
         const url = `/api/v1/notices/${this.notice.id}`
-        this.$axios.$patch(url, this.notice)
+        // this.$axios.$patch(url, this.notice)
         Object.assign(this.notices[this.editedIndex], this.notice)
+        this.$axios.$patch(url, formData, config)
         this.$store.dispatch(
           'flashMessage/showMessage',
           {
@@ -345,9 +363,23 @@ export default {
           }
         )
       } else {
-        this.$axios.$post('/api/v1/notices', this.notice)
+        // console.log(this.notice)
+        const formData = new FormData()
+        if (this.image) {
+          formData.append('notice_icon', this.image)
+        }
+        // formData.append('id', this.notice.id)
+        formData.append('title', this.notice.title)
+        formData.append('text', this.notice.text)
+        const config = {
+          headers: {
+            'content-type': 'multipart/form-data'
+          }
+        }
+        this.$axios.$post('/api/v1/notices', formData, config)
           .then(res => this.notices.push(res))
         // this.notices.push(this.notice)
+        // console.log(this.notices)
         this.$store.dispatch(
           'flashMessage/showMessage',
           {
@@ -356,10 +388,17 @@ export default {
             status: true
           }
         )
-        this.loadItems()
       }
       this.close()
     }
   }
 }
 </script>
+<style scoped>
+.notice-text {
+  margin-top: -50px;
+}
+.notice-btn {
+  margin-top: -50px;
+}
+</style>
